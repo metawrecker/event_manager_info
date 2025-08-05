@@ -1,7 +1,7 @@
 ::EventManagerInfo <- {
 	ID = "mod_event_manager_info",
 	Name = "EventManagerInfo",
-	Version = "1.0.0"
+	Version = "0.9.0"
 }
 
 ::mods_registerMod(::EventManagerInfo.ID, ::EventManagerInfo.Version, ::EventManagerInfo.Name);
