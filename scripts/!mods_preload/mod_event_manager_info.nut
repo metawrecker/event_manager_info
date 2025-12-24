@@ -50,7 +50,6 @@
 					//need to check for a juggler in the company for if the bro can even be 'hired'
 				}
 
-
 				return true;
 			}
 		}
@@ -119,6 +118,8 @@
 
 			for( local i = 0; i < allEvents.len(); i = ++i )
 			{
+				allEvents[i].clear();
+
 				if (clearLastFiredEvent && lastEventId == allEvents[i].getID() && !allEvents[i].isSpecial())
 				{
 					allEvents[i].clear();
@@ -136,7 +137,7 @@
 				}
 
 				if (allEvents[i].getScore() == 0 && allEvents[i].m.CooldownUntil > 0 && !allEvents[i].isSpecial()) {
-					local cooldownUntil = this.Math.floor(allEvents[i].m.CooldownUntil / this.World.getTime().SecondsPerDay);
+					local cooldownUntil = (allEvents[i].m.CooldownUntil / this.World.getTime().SecondsPerDay);
 					local firedOn = cooldownUntil - (allEvents[i].m.Cooldown / this.World.getTime().SecondsPerDay);
 
 					if (cooldownUntil > 9999) {
@@ -145,7 +146,7 @@
 
 					eventsOnCooldown.append({
 							id = allEvents[i].getID(),
-							onCooldownUntilDay = cooldownUntil
+							onCooldownUntilDay = ::MSU.Math.roundToDec( cooldownUntil, 4 )
 							firedOnDay = firedOn
 						});
 				}
@@ -209,13 +210,13 @@
 				::logWarning("Last Event: " + lastEvent.getTitle());
 			}
 
-			if (printAll) {
-				::logWarning("Too close to enemy party? " + playerIsTooCloseToEnemyParty());
-				::logWarning("Long enough time after last battle? " + canFireEventAfterLastBattle);
-				::logWarning("Has minimum time since last event passed? " + canFireEventBasedOnGlobalMinDelay);
-				::logWarning("Time since last event: " + timeSinceLastEvent);
-				::logWarning("Chance to fire an event now: " + chanceToFireEvent);
-			}
+			// if (printAll) {
+			// 	::logWarning("Too close to enemy party? " + playerIsTooCloseToEnemyParty());
+			// 	::logWarning("Long enough time after last battle? " + canFireEventAfterLastBattle);
+			// 	::logWarning("Has minimum time since last event passed? " + canFireEventBasedOnGlobalMinDelay);
+			// 	::logWarning("Time since last event: " + timeSinceLastEvent);
+			// 	::logWarning("Chance to fire an event now: " + chanceToFireEvent);
+			// }
 
 			::logWarning("Sum of all event scores: " + allScores);
 			::logWarning("Sum of non-brother event scores: " + nonEventBroScore);
