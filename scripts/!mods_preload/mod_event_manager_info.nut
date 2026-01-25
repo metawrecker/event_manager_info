@@ -9,18 +9,18 @@
 	. Top buttons need to stay selected (done)
 	. Make filter work (done)
 	. Fix button to align center (done??)
+	. Adjust section borders maybe (done)
+	. Add checkbox to highlight or show only bro events in both queue and cooldown (done)
+	. Fix "no events found" firing when there is clearly content.. (skip)
+	. Center Message (skip)
+	. Fix on cooldown sorting (done)
+	. Mark events as bro events in some way (done)
 
 
-	. Mark events as bro events in some way
-	. Adjust section borders maybe
 	. Add logic to filter out non-valid bro events
 	. Investigate more readable day numbers (especially with rounding!)
-	. Add checkbox to highlight or show only bro events in both queue and cooldown
 	. Add logic to process events in the cooldown list
 	. Fix grid header and content alignment
-	. Fix "no events found" firing when there is clearly content..
-	. Center Message
-	. Fix on cooldown sorting
 
 */
 

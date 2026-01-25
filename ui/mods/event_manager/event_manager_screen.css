@@ -82,7 +82,7 @@
 }
 .emi-event-summary-content
 {
-	margin-right: 2rem;
+	margin-right: 5rem;
 }
 .emi-event-summary-content:last-child
 {
@@ -94,7 +94,7 @@
 }
 .emi-checkbox-label
 {
-	margin-right: 1rem;
+	margin-left: 1rem;
 }
 .emi-table-header
 {
@@ -147,7 +147,7 @@
 }
 .brother-highlight
 {
-	color: green;
+	color: green !important;
 }
 /* .emi-overview-perks-row
 {

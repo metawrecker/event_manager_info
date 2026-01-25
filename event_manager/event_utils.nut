@@ -37,14 +37,29 @@
 		}
 	},
 
-	function eventMayGiveBrother(currentEventId)
+	function eventMayGiveBrother(event)
 	{
+		local currentEventId = event.getID();
+
 		foreach ( key, eventId in this.m.BroHireEventIds)
 		{
 			if (currentEventId == eventId) {
 				if (eventId == "event.fire_juggler") {
-					//need to check for a juggler in the company for if the bro can even be 'hired'
+					if (event.m.Juggler == null) {
+						return false;
+					}
 				}
+				else if (eventId == "event.retired_gladiator") {
+					if (event.m.Gladiator == null) {
+						return false;
+					}
+				}
+				else if (eventId == "event.imprisoned_wildman") {
+					if (event.m.Wildman == null && event.m.Monk == null) {
+						return false;
+					}
+				}
+				//else if (eventId == "") //keep adding
 
 				return true;
 			}
@@ -57,15 +72,24 @@
 	{
 		local readableName = "";
 		local tempName = "No name";
+		local appendCrises = false;
 
 		if (eventId == "")
 			return tempName;
 
-		if (eventId.find("event.") != null) {
+		if (eventId.find("event.crisis.") != null) {
+			tempName = eventId.slice(13);
+			appendCrises = true;
+		}
+		else if (eventId.find("event.") != null) {
 			tempName = eventId.slice(6);
 		}
 
 		local words = split(tempName, "_");
+
+		if (appendCrises) {
+			words.insert(0, "crisis");
+		}
 
 		foreach(index, word in words) {
 			local firstCharacter = word.slice(0, 1);
@@ -77,6 +101,22 @@
 		strip(readableName);
 
 		return readableName;
+	}
+
+	function getChanceForBrother(event)
+	{
+		local chance = 100;
+		local currentEventId = event.getID();
+
+		if (currentEventId == "event.runaway_laborers") {
+			chance = 70;
+		}
+		else if (currentEventId = "")
+		{
+			//other events..
+		}
+
+		return chance;
 	}
 
 	function processEventsAndStoreValues()
@@ -128,7 +168,7 @@
 						id = allEvents[i].getID(),
 						name = createHumanReadableEventName(allEvents[i].getID()),
 						firedOnDay = firedOn,
-						mayGiveBrother = eventMayGiveBrother(allEvents[i].getID()),
+						mayGiveBrother = eventMayGiveBrother(allEvents[i]),
 						onCooldownUntilDay = ::MSU.Math.roundToDec( cooldownUntil, 4 )
 					});
 			}
@@ -142,10 +182,11 @@
 						name = createHumanReadableEventName(allEvents[i].getID()),
 						score = eventScore,
 						cooldown = eventCooldown,
-						mayGiveBrother = false
+						mayGiveBrother = false,
+						chanceForBrother = getChanceForBrother(allEvents[i])
 					};
 
-				if (eventMayGiveBrother(allEvents[i].getID())) {
+				if (eventMayGiveBrother(allEvents[i])) {
 					eventToAdd.mayGiveBrother = true;
 					this.m.BroHireEventsInPool.append(eventToAdd);
 					this.m.EventBroHireScore += eventScore;
@@ -154,6 +195,8 @@
 					this.m.NonBroHireEventsInPool.append(eventToAdd);
 					this.m.NonEventBroHireScore += eventScore;
 				}
+
+				::MSU.Log.printData(eventToAdd);
 			}
 		}
 
