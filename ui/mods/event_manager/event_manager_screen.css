@@ -78,7 +78,23 @@
 	margin: 1rem;
 	display: flex;
 	flex-direction: row;
-	justify-content: space-around;
+	/* justify-content: space-around; */
+}
+.emi-event-summary-content
+{
+	margin-right: 2rem;
+}
+.emi-event-summary-content:last-child
+{
+	margin-right: 0;
+}
+.emi-checkbox
+{
+
+}
+.emi-checkbox-label
+{
+	margin-right: 1rem;
 }
 .emi-table-header
 {
@@ -128,6 +144,10 @@
 	width:30%;
 	justify-content: start;
 	margin-bottom: 3px;
+}
+.brother-highlight
+{
+	color: green;
 }
 /* .emi-overview-perks-row
 {

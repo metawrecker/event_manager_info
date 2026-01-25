@@ -80,16 +80,8 @@ EventManagerScreen.prototype.createDIV = function (_parentDiv)
 
 EventManagerScreen.prototype.createHeader = function ()
 {
-	// $('<div class="emi-mod-title-header title-font-very-big font-bold font-color-title">Event Manager Info Beta (v0.9.4)</div>')
-	// 	.appendTo(this.mContainer);
 	$('<div id="emi-header" class="emi-title title-font-big font-bold font-color-title">Event Manager Info Beta (v0.9.4)</div>')
 		.appendTo(this.mContainer);
-
-
-
-	// this.mContainer
-	// 	.append(titleBar)
-	// 	.append(sectionBar);
 }
 
 EventManagerScreen.prototype.createButtonBar = function () 
@@ -106,21 +98,6 @@ EventManagerScreen.prototype.createButtonBar = function ()
 		self.switchToEventsOnCooldownPanel();
 	}, 'emi-header-button');
 
-	// var eventPoolButton = this.mPageTabContainer.createCustomButton(null, function (_button)
-	// {
-	// 	self.switchToEventsInPoolPanel();
-	// }, 'emi-tab-button', 9);
-
-	// var eventCooldownButton = this.mPageTabContainer.createCustomButton(null, function (_button)
-	// {
-	// 	self.switchToEventsOnCooldownPanel();
-	// }, 'emi-tab-button', 9);
-
-	//eventPoolButton.text("Available Events");
-	//eventPoolButton.removeClass('button');
-	//eventCooldownButton.text("Events on Cooldown");
-	//eventCooldownButton.removeClass('button');
-
 	eventPoolButton.addClass('is-active');
 
 	eventPoolButton.attr("id", "emi-event-pool-button");
@@ -128,160 +105,6 @@ EventManagerScreen.prototype.createButtonBar = function ()
 
 	this.mPageTabContainer.append(eventPoolButton);
 	this.mPageTabContainer.append(eventCooldownButton);
-
-
-	
-
-	// var layout = $('<div class="emi-tab-button"/>');
-	// this.mPageTabContainer.append(layout);
-
-	// var button = this.mListScrollContainer.createCustomButton(null, function (_button)
-	// {
-	// 	self.switchToPanel(_panel);
-	// 	self.switchToFirstPage(_panel);
-	// }, 'msu-button');
-
-	// button.text(_panel.name);
-	// button.removeClass('button');
-
-	// var eventsInQueueButton = layout.createCustomButton('Active Queue', function () 
-	// {
-	// 	self.switchToEventsInPoolPanel();
-	// }, null, null, 7);
-
-
-
-	// eventsInQueueButton.click();
-
-	// layout = $('<div class="emi-tab-button"/>');
-	// this.mPageTabContainer.append(layout);
-	// var eventsOnCooldownButton = layout.createCustomButton('Events On Cooldown', function () 
-	// {
-	// 	self.switchToEventsOnCooldownPanel();
-	// }, null, null, 7);
-}
-
-EventManagerScreen.prototype.createCustomEmiHeaderButton = function (_text, _callback, _classes) 
-{
-	var result = $('<div class="ui-control emi-custom-header-button text-font-normal"/>');
-
-    // if (_size === undefined)
-    //     result = $('<div class="ui-control button text-font-normal"/>');
-    // else
-    //     result = $('<div class="ui-control button-' + _size + ' text-font-normal"/>');
-
-    if (_classes !== undefined && _classes !== null && typeof(_classes) === 'string')
-    {
-        result.addClass(_classes);
-    }
-
-    // if (_content !== undefined && _content !== null && typeof(_content) === 'object')
-    // {
-    //     result.append(_content);
-    // }
-
-	if (_text !== undefined && _text !== null && typeof(_text) === 'string')
-    {
-        var label = $('<span class="label">' + _text + '</span>');
-        result.append(label);
-    }
-
-    if (_callback !== undefined && _callback !== null && typeof(_callback) === 'function')
-    {
-        result.on("click", function ()
-        {
-            var disabled = $(this).attr('disabled');
-            if (disabled !== null && disabled !== 'disabled')
-			{
-                _callback($(this));
-            }
-        });
-    }
-
-    result.on("mousedown", function ()
-    {
-        var disabled = $(this).attr('disabled');
-        if(disabled !== null && disabled !== 'disabled')
-		{
-            $(this).addClass('is-selected');
-        }
-		else
-		{
-            $(this).removeClass('is-selected');
-        }
-    });
-
-    result.on("mouseup", function ()
-    {
-        $(this).removeClass('is-selected');
-    });
-
-    result.on("mouseenter", function ()
-    {
-        var disabled = $(this).attr('disabled');
-        if (disabled !== null && disabled !== 'disabled')
-        {
-            $(this).addClass('is-selected');
-        }
-        else
-        {
-            $(this).removeClass('is-selected');
-        }
-    });
-
-    result.on("mouseleave", function ()
-    {
-        $(this).removeClass('is-selected');
-    });
-
-    //this.append(result);
-
-    return result;
-}
-
-EventManagerScreen.prototype.createCustomTabButton = function(_text, _callback, _classes)
-{
-	var result = $('<div class="ui-control emi-custom-tab-button text-font-normal"/>');
-
-	if (_classes !== undefined && _classes !== null && typeof(_classes) === 'string')
-    {
-        result.addClass(_classes);
-    }
-
-    if (_text !== undefined && _text !== null && typeof(_text) === 'string')
-    {
-        var label = $('<span class="label">' + _text + '</span>');
-        result.append(label);
-    }
-
-    if (_callback !== undefined && _callback !== null && typeof(_callback) === 'function')
-    {
-    	result.click(function (_event)
-    	{
-            // var disabled = $(this).attr('disabled');
-            // if (disabled !== null && disabled !== 'disabled') {
-            //     var groupName = $(this).data('group');
-            //     if (groupName !== null && typeof(groupName) === 'string')
-            //     {
-            //         var siblings = $(this).parent().parent().find('div[id^=' + groupName + '_]');
-            //         if (siblings.length > 0) {
-            //             siblings.each(function(index, element) {
-            //                 var sibling = $(element);
-            //                 sibling.removeClass('is-selected');
-            //             });
-            //         }
-            //     }
-
-            //     $(this).addClass('is-selected');
-
-                
-            // }
-
-			_callback($(this));
-        });
-    }
-
-	return result;
 }
 
 EventManagerScreen.prototype.createTableHeaderSpaceForEventPoolContainer = function ()
@@ -292,18 +115,47 @@ EventManagerScreen.prototype.createTableHeaderSpaceForEventPoolContainer = funct
 	var summaryContent = $('<div class="emi-event-summary"/>');
 	this.mEventPoolHeaderContent.append(summaryContent);
 
-	var totalScoreSpan = $('<span id="emi-total-score" class="title-font-normal font-color-subtitle">Total Event Score ' + 0 + '</span>')
-	.appendTo(summaryContent);
+	// var totalScoreSpan = $('<span id="emi-total-score" class="emi-event-summary-content title-font-normal font-color-brother-name">Total Event Score ' + 0 + '</span>')
+	// 	.appendTo(summaryContent);
 
-	var brotherScoreSpan = $('<span id="emi-brother-score" class="title-font-normal font-color-subtitle">Total Brother Score ' + 0 + '</span>')
-	.appendTo(summaryContent);
+	// var brotherScoreSpan = $('<span id="emi-brother-score" class="emi-event-summary-content title-font-normal font-color-brother-name">Total Brother Score ' + 0 + '</span>')
+	// 	.appendTo(summaryContent);
+	
+	var chanceForABro = $('<span id="emi-chance-for-a-brother" class="emi-event-summary-content title-font-normal font-color-brother-name">Chance for a brother event ' + 0 + '</span>');
+
+	summaryContent.append(chanceForABro);
+	
+	//
+
+	/////
+
+	var checkbox = $('<input type="checkbox" class="emi-checkbox" id="hideEventBros" name="display"/>');
+	summaryContent.append(checkbox);
+
+    var checkboxLabel = $('<label class="blub emi-checkbox-label text-font-medium font-color-subtitle font-style-normal" for="hideEventBros">Hide non-bro events</label>');
+    summaryContent.append(checkboxLabel);
+
+	//checkboxLabel.bindTooltip({ contentType: 'ui-element', elementId: TooltipIdentifier.CharacterScreen.DismissPopupDialog.Compensation });
+
+	checkbox.iCheck({
+		checkboxClass: 'icheckbox_flat-orange',
+		radioClass: 'iradio_flat-orange',
+		increaseArea: '10%'
+	});
+
+	checkbox.on('ifChecked ifUnchecked', null, this, function (_event)
+	{
+		self.toggleShowingNormalEventsInPool(checkbox.prop('checked') === true);
+	});
+
+	/////
 
 	var tableHeader = $('<div class="emi-table-header"/>');
 	this.mEventPoolHeaderContent.append(tableHeader);
 
 	tableHeader
-	.append($("<div class='emi-event-item-name title-font-big font-bold font-color-subtitle'>Event Name</div>"))
-	.append($("<div class='emi-event-item-score title-font-big font-bold font-color-subtitle'>Score</div>"));
+		.append($("<div class='emi-event-item-name title-font-big font-bold font-color-brother-name'>Event Name</div>"))
+		.append($("<div class='emi-event-item-score title-font-big font-bold font-color-brother-name'>Score</div>"));
 }
 
 EventManagerScreen.prototype.createTableHeaderSpaceForEventCooldownContainer = function ()
@@ -319,9 +171,9 @@ EventManagerScreen.prototype.createTableHeaderSpaceForEventCooldownContainer = f
 	this.mEventCooldownHeaderContent.append(tableHeader);
 
 	tableHeader
-	.append($("<div class='emi-cooldown-item-name title-font-big font-bold font-color-subtitle'>Event Name</div>"))
-	.append($("<div class='emi-cooldown-item-fired-on title-font-big font-bold font-color-subtitle'>Fired on Day</div>"))
-	.append($("<div class='emi-cooldown-item-cooldown-until-day title-font-big font-bold font-color-subtitle'>Available On Day</div>"));
+		.append($("<div class='emi-cooldown-item-name title-font-big font-bold font-color-brother-name'>Event Name</div>"))
+		.append($("<div class='emi-cooldown-item-fired-on title-font-big font-bold font-color-brother-name'>Fired on Day</div>"))
+		.append($("<div class='emi-cooldown-item-cooldown-until-day title-font-big font-bold font-color-brother-name'>Available On Day</div>"));
 }
 
 EventManagerScreen.prototype.createEventPoolContainer = function ()
@@ -329,10 +181,7 @@ EventManagerScreen.prototype.createEventPoolContainer = function ()
 	this.mEventPoolContainer = $('<div id="emi-event-pool-container" class="emi-content-container"/>');
 	this.mContainer.append(this.mEventPoolContainer);
 
-	// this.mEventPoolMessage = $('<span>No events in the pool</span>')
-	// .appendTo(this.mEventPoolContainer);
-
-	this.mEventPoolMessage = $('<span class="emi-content-message title-font-big font-bold font-color-subtitle">No events in the pool</span>')
+	this.mEventPoolMessage = $('<span class="emi-content-message title-font-big font-bold font-color-brother-name">No events in the pool</span>')
 	.hide();
 	this.mEventPoolContainer.append(this.mEventPoolMessage);
 
@@ -357,7 +206,7 @@ EventManagerScreen.prototype.createEventCooldownContainer = function ()
 		.hide();
 	this.mContainer.append(this.mEventCooldownContainer);
 
-	this.mEventCooldownMessage = $('<span class="emi-content-message title-font-big font-bold font-color-subtitle">No events on cooldown</span>')
+	this.mEventCooldownMessage = $('<span class="emi-content-message title-font-big font-bold font-color-brother-name">No events on cooldown</span>')
 		.hide();
 	this.mEventCooldownContainer.append(this.mEventCooldownMessage);
 
@@ -383,7 +232,7 @@ EventManagerScreen.prototype.createFilterBar = function()
 	var self = this;
     var filterRow = $('<div class="emi-overview-filter-by-name-row"/>')
     	.appendTo(filterContainer);
-    var name = $('<span class="title-font-normal font-color-subtitle">Filter by Event Name</span>')
+    var name = $('<span class="title-font-normal font-color-brother-name">Filter by Event Name</span>')
     	.appendTo(filterRow);
     var filterLayout = $('<div class="emi-overview-filter-bar-container"/>')
         .appendTo(filterRow);
@@ -399,52 +248,16 @@ EventManagerScreen.prototype.createFilterBar = function()
                 $(this).val(currentInput);
 
 				self.filterEvents(currentInput);
-            });
+			});
 	
-	// var layout = $('<div />');
-	// filterRow.append(layout);
-	// var button = filterRow.createTabTextButton("Reset Filter", function ()
-	// {
-	// 	self.filterEvents("");
-	// }, null, 'tab-button', 7);
-
-	// var layout = $('<div class="emi-filter-tab-button"/>');
-	// filterRow.append(layout);
-	// var button = layout.createTabTextButton("Reset", function ()
-	// {
-	// 	self.filterEvents("");
-	// }, null, 'emi-filter-button', 7);
-
-	// var resetButton = filterRow.createTabTextButton("Reset", function() {
-	// 	self.filterEvents("");
-	// }, null, 'emi-filter-button', 7);
-
-	// var resetButton = this.createEmiCustomButton("Reset", function() {
-	// 	self.filterEvents();
-	// },null,'emi-filter-button');
-
-	// filterRow.append(resetButton);
-
-	// var layout = $('<div class="l-ok-button"/>');
-	// filterRow.append(layout);
-	// layout.createTextButton("Reset", function ()
-	// {
-	// 	self.filterEvents("");
-	// }, 'main-reset-button', 1);
-
-
-	// var layout = $('<div class="emi-filter-tab-wrapper"/>');
-	// filterRow.append(layout);
-	// var button = layout.createTabTextButton("Reset", function ()
-	// {
-	// 	self.filterEvents("");
-	// }, null, 'emi-filter-tab-button', 7);
-
 	var resetFilterButton = this.createCustomTabButton("Reset", function() {
 		self.filterEvents("");
 	}, 'emi-tab-button');
 
 	filterRow.append(resetFilterButton);
+
+	var legend = $('<span class="title-font-normal font-color-brother-name brother-highlight">Event may give a bro</span>')
+	.appendTo(filterRow);
 }
 
 EventManagerScreen.prototype.createFooter = function ()
@@ -574,7 +387,7 @@ EventManagerScreen.prototype.populateEventCooldownContainer = function(_data)
 
 	var eventList = this.mEventData.EventsOnCooldown;
 
-	eventList.sort(function(a,b) {
+	eventList.sort(function(a, b) {
 		return a.firedOnDay > b.firedOnDay;
 	});
 
@@ -592,17 +405,29 @@ EventManagerScreen.prototype.populateSummary = function(_data)
 		broChance = (_data.EventBroHireScore / _data.AllScores * 1.0 * 100.0);
 	}
 
-	$("#emi-total-score").text("Total Event Score: " + _data.AllScores + "     ");
-	$("#emi-brother-score").text("Brother Event Score: " + _data.EventBroHireScore + " (" + broChance.toFixed(2) + "%)");
+	//$("#emi-total-score").text("Total Event Score: " + _data.AllScores + "     ");
+	//$("#emi-brother-score").text("Brother Event Score: " + _data.EventBroHireScore + " (" + broChance.toFixed(2) + "%)");
+
+	var text = "Chance for a brother: " + broChance.toFixed(2) + "% " + "(" + _data.EventBroHireScore + " / " + _data.AllScores + ")";
+	$("#emi-chance-for-a-brother").text(text);
 }
 
 EventManagerScreen.prototype.createEventInPoolSection = function(_eventData)
 {
+	var nameField = $("<div class='emi-event-item-name title-font-normal font-bold font-color-brother-name'>" + _eventData.name + "</div>");
+	var scoreField = $("<div class='emi-event-item-score title-font-normal font-bold font-color-brother-name'>" + _eventData.score + "</div>");
+	
+	if (_eventData.mayGiveBrother) {
+		nameField.addClass('brother-highlight');
+		scoreField.addClass('brother-highlight');
+	}
+
 	var eventContainer = $('<div class="emi-event-container"/>')
 		.attr('data-event-name', _eventData.name)
-		.append($("<div class='emi-event-item-name title-font-normal font-bold font-color-subtitle'>" + _eventData.name + "</div>"))
-		.append($("<div class='emi-event-item-score title-font-normal font-bold font-color-subtitle'>" + _eventData.score + "</div>"));
-
+		.attr('is-bro-event', _eventData.mayGiveBrother)
+		.append(nameField)
+		.append(scoreField);
+	
 	return eventContainer;
 }
 
@@ -619,29 +444,31 @@ EventManagerScreen.prototype.createEventOnCooldownSection = function(_eventData)
 		onCooldownUntilDay = _eventData.onCooldownUntilDay.toFixed(2);
 	}
 
+	var nameField = $("<div class='emi-event-item-name title-font-normal font-bold font-color-brother-name'>" + _eventData.name + "</div>");
+	var firedOnField = $("<div class='emi-cooldown-item-fired-on title-font-normal font-bold font-color-brother-name'>" + firedOnDay + "</div>");
+	var onCooldownField = $("<div class='emi-cooldown-item-cooldown-until-day title-font-normal font-bold font-color-brother-name'>" + onCooldownUntilDay + "</div>");
+
+	if (_eventData.mayGiveBrother) {
+		nameField.addClass('brother-highlight');
+		firedOnField.addClass('brother-highlight');
+		onCooldownField.addClass('brother-highlight');
+	}
+
 	var eventContainer = $('<div class="emi-event-container"/>')
 		.attr('data-event-name', _eventData.name)
-		.append($("<div class='emi-cooldown-item-name title-font-normal font-bold font-color-subtitle'>" + _eventData.name + "</div>"))
-		.append($("<div class='emi-cooldown-item-fired-on title-font-normal font-bold font-color-subtitle'>" + firedOnDay + "</div>"))
-		.append($("<div class='emi-cooldown-item-cooldown-until-day title-font-normal font-bold font-color-subtitle'>" + onCooldownUntilDay + "</div>"));
+		.attr('is-bro-event', _eventData.mayGiveBrother)
+		.append(nameField)
+		.append(firedOnField)
+		.append(onCooldownField);
+	
 	return eventContainer;
 }
 
 EventManagerScreen.prototype.showMessage = function(_container, _message)
 {
-	//this.mEventPoolScrollContainer.find(".emi-event-container").show();
-	//this.mEventPoolScrollContainer.children().length > 0
-
 	_container.find('.emi-content-message')
 		.text(_message)
 		.show();
-
-
-	// if (!_container.find('.emi-event-container').children().length == 0) {
-	// 	 //probs need to 
-	// }
-
-	// if (_container.find('.emi-event-container').is(':visible'))
 }
 
 EventManagerScreen.prototype.hideMessage = function(_container) 
@@ -649,11 +476,6 @@ EventManagerScreen.prototype.hideMessage = function(_container)
 	_container.find('.emi-content-message')
 		.hide();
 }
-
-// EventManagerScreen.prototype.registerEventListener = function (_listener)
-// {
-// 	this.mEventListener = _listener;
-// };
 
 EventManagerScreen.prototype.onConnection = function (_handle, _parentDiv)
 {
@@ -753,19 +575,13 @@ EventManagerScreen.prototype.filterEvents = function(_text)
 
 EventManagerScreen.prototype.switchToEventsOnCooldownPanel = function () 
 {
-	//this.mPageTabContainer.children().removeClass('is-selected');
-
 	$('#emi-event-pool-button').removeClass("is-active");
 	$('#emi-event-cooldown-button').addClass("is-active");
 
-	//_button.addClass("is-selected");
-
-	//console.log(_button);
-	//this.mHeader = "Events in Queue";
-	//$("#emi-header").text("Events on Cooldown");
 	this.mNameFilterInput.val("");
 	this.mEventPoolScrollContainer.find(".emi-event-container").show();
 	this.mEventCooldownScrollContainer.find(".emi-event-container").show();
+
 	$("#emi-event-pool-container").hide();
 	$("#emi-event-pool-header-content").hide();
 	$("#emi-event-cooldown-container").show();
@@ -774,25 +590,36 @@ EventManagerScreen.prototype.switchToEventsOnCooldownPanel = function ()
 
 EventManagerScreen.prototype.switchToEventsInPoolPanel = function ()
 {
-	// this.mPageTabContainer.children().removeClass('is-selected');
-
-	// _button.addClass("is-selected");
 	$('#emi-event-cooldown-button').removeClass("is-active");
 	$('#emi-event-pool-button').addClass("is-active");
 	
-	//need to reset the filter
 	this.mNameFilterInput.val("");
 	this.mEventPoolScrollContainer.find(".emi-event-container").show();
 	this.mEventCooldownScrollContainer.find(".emi-event-container").show();
-	//console.log(_button);
-	
-	//this.mHeader = "Events on Cooldown";
-	//$("#emi-header").text("Available Events");
+
 	$("#emi-event-cooldown-container").hide();
 	$("#emi-event-cooldown-header-content").hide();
 	$("#emi-event-pool-container").show();
 	$("#emi-event-pool-header-content").show();
-	
+}
+
+EventManagerScreen.prototype.toggleShowingNormalEventsInPool = function (_hideEvents)
+{
+	this.filterEvents("");
+
+	if (_hideEvents) {
+		this.mEventPoolScrollContainer.find(".emi-event-container").each(function() {
+			if ($(this).attr("is-bro-event") == true) {
+				$(this).show();
+			}
+			else {
+				$(this).hide();
+			}
+		})
+	}	
+	else {
+		this.mEventPoolScrollContainer.find(".emi-event-container").show();			
+	}	
 }
 
 // EventManagerScreen.prototype.bindTooltips = function ()
@@ -880,6 +707,104 @@ EventManagerScreen.prototype.destroy = function()
 // 	}
 // 	this.notifyBackendPopupVisible(false);
 // };
+
+// EventManagerScreen.prototype.registerEventListener = function (_listener)
+// {
+// 	this.mEventListener = _listener;
+// };
+
+
+EventManagerScreen.prototype.createCustomEmiHeaderButton = function (_text, _callback, _classes) 
+{
+	var result = $('<div class="ui-control emi-custom-header-button text-font-normal"/>');
+
+    if (_classes !== undefined && _classes !== null && typeof(_classes) === 'string')
+    {
+        result.addClass(_classes);
+    }
+
+	if (_text !== undefined && _text !== null && typeof(_text) === 'string')
+    {
+        var label = $('<span class="label">' + _text + '</span>');
+        result.append(label);
+    }
+
+    if (_callback !== undefined && _callback !== null && typeof(_callback) === 'function')
+    {
+        result.on("click", function ()
+        {
+            var disabled = $(this).attr('disabled');
+            if (disabled !== null && disabled !== 'disabled')
+			{
+                _callback($(this));
+            }
+        });
+    }
+
+    result.on("mousedown", function ()
+    {
+        var disabled = $(this).attr('disabled');
+        if(disabled !== null && disabled !== 'disabled')
+		{
+            $(this).addClass('is-selected');
+        }
+		else
+		{
+            $(this).removeClass('is-selected');
+        }
+    });
+
+    result.on("mouseup", function ()
+    {
+        $(this).removeClass('is-selected');
+    });
+
+    result.on("mouseenter", function ()
+    {
+        var disabled = $(this).attr('disabled');
+        if (disabled !== null && disabled !== 'disabled')
+        {
+            $(this).addClass('is-selected');
+        }
+        else
+        {
+            $(this).removeClass('is-selected');
+        }
+    });
+
+    result.on("mouseleave", function ()
+    {
+        $(this).removeClass('is-selected');
+    });
+
+    return result;
+}
+
+EventManagerScreen.prototype.createCustomTabButton = function(_text, _callback, _classes)
+{
+	var result = $('<div class="ui-control emi-custom-tab-button text-font-normal"/>');
+
+	if (_classes !== undefined && _classes !== null && typeof(_classes) === 'string')
+    {
+        result.addClass(_classes);
+    }
+
+    if (_text !== undefined && _text !== null && typeof(_text) === 'string')
+    {
+        var label = $('<span class="label">' + _text + '</span>');
+        result.append(label);
+    }
+
+    if (_callback !== undefined && _callback !== null && typeof(_callback) === 'function')
+    {
+    	result.click(function (_event)
+    	{
+			_callback($(this));
+        });
+    }
+
+	return result;
+}
 
 EventManagerScreen.prototype.notifyBackendPopupVisible = function ( _data )
 {
