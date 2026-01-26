@@ -194,13 +194,8 @@
 					this.m.NonBroHireEventsInPool.append(eventToAdd);
 					this.m.NonEventBroHireScore += eventScore;
 				}
-
-				::MSU.Log.printData(eventToAdd);
 			}
 		}
-
-		// ::logWarning("Completed processing events");
-		// ::MSU.Log.printData(this.m);
 	}
 
 	function getAllEventsInQueue()

@@ -109,7 +109,7 @@ EventManagerScreen.prototype.hide = function ()
 		easing: 'swing',
 		begin: function()
 		{
-			self.switchToEventsOnCooldownPanel();
+			self.switchToEventsInPoolPanel();
 			self.notifyBackendOnAnimating();
 		},
 		complete: function()
