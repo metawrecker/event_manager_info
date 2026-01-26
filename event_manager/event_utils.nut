@@ -13,7 +13,6 @@
 			CultistJoins = "event.cultist_origin_flock",
 			DeserterJoinsDeserterOrigin = "event.deserter_origin_volunteer",
 			SquireJoinsLonewolfOrigin = "event.lone_wolf_origin_squire",
-			IndebtedJoinsManhunterOrigin = "event.manhunters_origin_capture_prisoner",
 			Pirates = "event.pirates",
 			OathtakerJoins = "event.oathtaker_joins",
 			BastardAssassin = "event.bastard_assassin",
@@ -33,7 +32,8 @@
 			ThiefCaught = "event.thief_caught",
 			CannonExecution = "event.cannon_execution",
 			MelonThief = "event.melon_thief",
-			TheHorseman = "event.the_horseman"
+			TheHorseman = "event.the_horseman",
+			DesertWell = "event.desert_well"
 		}
 	},
 
@@ -44,22 +44,22 @@
 		foreach ( key, eventId in this.m.BroHireEventIds)
 		{
 			if (currentEventId == eventId) {
-				if (eventId == "event.fire_juggler") {
-					if (event.m.Juggler == null) {
-						return false;
-					}
+				local eventData = event.m;
+
+				switch (eventId) {
+					case "event.anatomist_helps_blighted_guy_1":
+						return eventData.Anatomist != null;
+					case "event.retired_gladiator":
+						return eventData.Gladiator != null;
+					case "event.fire_juggler":
+						return eventData.Juggler != null;
+					case "event.pimp_vs_harlot":
+						return eventData.Monk != null;
+					case "event.imprisoned_wildman":
+						return eventData.Wildman != null || eventData.Monk != null;
+					case "event.desert_well":
+						return eventData.Monk != null;
 				}
-				else if (eventId == "event.retired_gladiator") {
-					if (event.m.Gladiator == null) {
-						return false;
-					}
-				}
-				else if (eventId == "event.imprisoned_wildman") {
-					if (event.m.Wildman == null && event.m.Monk == null) {
-						return false;
-					}
-				}
-				//else if (eventId == "") //keep adding
 
 				return true;
 			}
@@ -108,12 +108,11 @@
 		local chance = 100;
 		local currentEventId = event.getID();
 
-		if (currentEventId == "event.runaway_laborers") {
-			chance = 70;
-		}
-		else if (currentEventId = "")
-		{
-			//other events..
+		switch (currentEventId) {
+			case "event.runaway_laborers":
+				return 70;
+			case "event.thief_caught":
+				return 75;
 		}
 
 		return chance;

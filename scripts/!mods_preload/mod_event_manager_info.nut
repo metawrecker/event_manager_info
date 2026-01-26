@@ -1,7 +1,7 @@
 ::EventManagerInfo <- {
 	ID = "mod_event_manager_info",
 	Name = "Event Manager Info",
-	Version = "0.9.4"
+	Version = "0.9.5"
 }
 
 /*
@@ -15,12 +15,15 @@
 	. Center Message (skip)
 	. Fix on cooldown sorting (done)
 	. Mark events as bro events in some way (done)
+	. Add logic to filter out non - valid bro events(done)
+	. Fill in DestroyDIV()
+	. Reset form on hide()
 
-
-	. Add logic to filter out non-valid bro events
 	. Investigate more readable day numbers (especially with rounding!)
 	. Add logic to process events in the cooldown list
 	. Fix grid header and content alignment
+	. Fix defaulting to hiding 9999 cooldown events not working
+	. Fix show() and hide() not resetting the UI back to first state
 
 */
 
@@ -54,9 +57,6 @@ foreach (mod in requiredMods) {
 	::Hooks.registerCSS("ui/mods/event_manager/event_manager_screen.css");
 
 	::EventManagerInfo.EventScreen <- ::new("scripts/ui/screens/event_manager_screen");
-	//::EventManagerInfo.JSConnection <- ::new("event_manager/event_manager_js_connection");
 
-	//::MSU.UI.registerConnection(::EventManagerInfo.JSConnection);
 	::MSU.UI.registerConnection(::EventManagerInfo.EventScreen);
-	//::MSU.UI.addOnConnectCallback(::EventManagerInfo.JSConnection.finalize.bindenv(::EventManagerInfo.JSConnection));
 });

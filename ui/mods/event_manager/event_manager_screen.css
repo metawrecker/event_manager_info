@@ -1,3 +1,6 @@
+/************************************
+* Mod Event Manager popup screen
+*************************************/
 .emi-screen
 {
 	top: 0;
@@ -15,42 +18,21 @@
 	border: 5px solid transparent;
 	border-image:  url("coui://gfx/mods/msu/skin/generic_background_large_border.png") 50 fill / 1rem / 2rem stretch;
 }
-.emi-mod-title-header
-{
-	justify-content: center;
-}
+
+
+/************************************
+* Title Bar
+*************************************/
 .emi-title
 {
 	display:flex;
 	justify-content: center;
 }
-.emi-content-header
-{
-	height: 9rem;
-	width: 100%;
-	padding: 1rem;
-	padding-bottom: 1.5rem;
-	margin-bottom: 1rem;
-}
-.emi-content-container
-{
-	flex: 1;
-	width: 100%;
-	overflow: auto;
-	justify-content: center;
-	align-items: center;
-}
-.emi-content-message
-{
 
-}
-.emi-scroll-container
-{
-	
-}
-.emi-content-scroll-container
-{
-}
+
+/************************************
+* Header Button styling
+*************************************/
 .emi-header-button-bar
 {
 	height: 4rem;
@@ -70,6 +52,11 @@
 	align-items: center;
 	justify-content: center; 
 }
+
+
+/************************************
+* Summary Header styling
+*************************************/
 .emi-event-summary
 {
 	height: 3rem;
@@ -78,7 +65,6 @@
 	margin: 1rem;
 	display: flex;
 	flex-direction: row;
-	/* justify-content: space-around; */
 }
 .emi-event-summary-content
 {
@@ -88,13 +74,18 @@
 {
 	margin-right: 0;
 }
-.emi-checkbox
-{
 
-}
-.emi-checkbox-label
+
+/************************************
+* Summary Header styling
+*************************************/
+.emi-content-header
 {
-	margin-left: 1rem;
+	height: 9rem;
+	width: 100%;
+	padding: 1rem;
+	padding-bottom: 1.5rem;
+	margin-bottom: 1rem;
 }
 .emi-table-header
 {
@@ -106,6 +97,32 @@
 	padding-right: 3rem;
 	flex-direction: row;
 }
+
+
+/************************************
+* Event container styling
+*************************************/
+.emi-content-container
+{
+	flex: 1;
+	width: 100%;
+	overflow: auto;
+	justify-content: center;
+	align-items: center;
+}
+.emi-content-message
+{
+
+}
+.emi-scroll-container
+{
+	
+}
+
+
+/************************************
+* Event row styling
+*************************************/
 .emi-event-container
 {
 	display:flex;
@@ -149,56 +166,19 @@
 {
 	color: green !important;
 }
-/* .emi-overview-perks-row
-{
-	display:flex;
-   	background-image: url("coui://gfx/ui/skin/custom_background_698_40.png");
-	background-size: 100% 100%;
-	background-repeat: no-repeat;
-	padding-top:1rem;
-	padding-bottom: 1rem;
-}
-//if the special loose group, we just want one large cell
-.emi-overview-perks-row[data-perkgroupid="looseperksgroup"] .emi-overview-perks-row-cell:nth-child(2)
-{
-	flex:initial;
-}
-.emi-overview-perks-row-cell
-{
-	flex:1;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-wrap: wrap;
-	border-left: 1px solid rgba(0,0,0,0.4);
-	border-right: 1px solid rgba(0,0,0,0.4);
-}
-.emi-overview-perks-row-cell:first-child
-{
-	border-left: none;
-}
-.emi-overview-perks-row-cell:last-child
-{
-	border-right: none;
-}
-.emi-overview-perks-row-cell.emi-overview-perkgroup-cell
-{
-	border-right: 2px solid rgba(0, 0, 0, 0.7);
-	background-color: rgba(87, 65, 43, 0.3);
-	margin-left: 7px;
-} 
-*/
+
+
+/************************************
+* Filter row
+*************************************/
 .emi-overview-filter-container
 {
-/*	height:10%;*/
 	width:100%;
 	height:5rem;
 	padding: 2rem;
 	padding-left: 5rem;
-	/*justify-self: flex-end;*/
 	display: flex;
 	flex-direction: column;
-/*	align-items: center;*/
 	justify-content: center;
 }
 .emi-overview-filter-by-name-row
@@ -237,13 +217,10 @@
 	background-color: rgba(0, 0, 0, 0);
 	border: none;
     outline: none;
-
 	text-shadow: 1px 1px 1px #000;
-
     -moz-user-select: -moz-text;
     -webkit-user-select: text;
     user-select: text;
-
 	background-image: url("coui://gfx/ui/skin/text_input_300x40_inactive.png");
 	background-size: 100% 100%;
 	background-repeat: no-repeat;
@@ -251,7 +228,6 @@
 .emi-filter:hover,
 .emi-filter:focus
 {
-    /*border-color: rgb(129, 50, 24);*/
     background-image: url("coui://gfx/ui/skin/text_input_300x40_selected.png");
 }
 .emi-overview-footer
@@ -265,34 +241,32 @@
 	height:4.3rem;
 	width: 17.5rem;
 }
-.emi-filter-button
+
+
+/************************************
+* Checkbox styling
+*************************************/
+.emi-checkbox
 {
-	width: 20rem;
-	height: 4rem;
-	margin-right: 1rem;
-	display: flex;
-	align-items: center;
-	justify-content: center; 
+
 }
-.emi-show-overview-screen-container
+.emi-checkbox-label
 {
-	width: 4.5rem;
-	height:  4.1rem;
-	position: absolute;
-	right:-4px;
-	bottom: 5rem;
+	margin-left: 1rem;
 }
 
+
+/************************************
+* Custom Header Button
+*************************************/
 .ui-control.emi-custom-header-button
 {
 	width: 100%;
 	height: 5.5rem;
 	position: relative;
-
     background-image: url("coui://gfx/ui/skin/button_tab_default.png");
     background-size: 30.0rem 5.5rem;
 	text-shadow: 1px 1px 1px #000;
-
     color: #dda21f;
 }
 
@@ -349,14 +323,11 @@
 	bottom: 0;
 	left: 0.3rem;
 	right: 0;
-
 	position: absolute;
-
     margin-top: 0.4rem;
 	margin-left: 0.4rem;
 	margin-right: 0.4rem;
 	text-align : center;
-
     overflow: hidden;
 }
 
@@ -386,6 +357,10 @@
     left: 1.0rem;
 }
 
+
+/************************************
+* Custom Tab Button
+*************************************/
 .emi-tab-button
 {
 	max-width: 12.1rem;
@@ -400,11 +375,9 @@
 	width: 100%;
 	height: 100%;
 	position: relative;
-
     background-image: url("coui://gfx/ui/skin/button_tab_default.png");
     background-size: 12rem 4.3rem;
 	text-shadow: 1px 1px 1px #000;
-
     color: #dda21f;
 }
 
@@ -424,7 +397,6 @@
 
 .ui-control.emi-custom-tab-button.is-selected
 {
-    /*text-shadow: 1px 1px #A36426, -1px -1px #000;*/
     color: #f0b121;
 }
 
@@ -460,12 +432,9 @@
 	bottom: .9rem;
 	left: 3.7rem;
 	right: 0;
-
 	position: absolute;
-
     margin-top: 0.4rem;
 	text-align : center;
-
     overflow: hidden;
 }
 
@@ -481,8 +450,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-    /*width: 80%;
-    height: 80%;*/
     position: absolute;
     margin: auto;
 }
