@@ -18,7 +18,7 @@ var EventManagerScreen = function (_parent)
 
 	//
 	this.mVisibleContainer = null;
-	this.mEventFilter = "";
+	this.mEventFilterText = "";
 	//
 	this.mID = "EventManagerScreen";
 };
@@ -91,6 +91,7 @@ EventManagerScreen.prototype.show = function (_data)
 		easing: 'swing',
 		begin: function ()
 		{
+			self.filterEvents();
 			$(this).show();
 			$(this).css("opacity", 0);
 			self.notifyBackendOnAnimating();
@@ -116,12 +117,12 @@ EventManagerScreen.prototype.hide = function ()
 		easing: 'swing',
 		begin: function()
 		{
-			self.switchToEventsInPoolPanel();
 			self.notifyBackendOnAnimating();
 		},
 		complete: function()
 		{
 			$(this).hide();
+			self.switchToEventsInPoolPanel();
 			self.notifyBackendOnHidden();
 		}
 	});
@@ -149,6 +150,8 @@ EventManagerScreen.prototype.destroyDIV = function ()
 	this.mEventData = null;
 	this.mEventPoolMessage = null;
 	this.mEventCooldownMessage = null;
+	this.mVisibleContainer = null;
+	this.mEventFilterText = "";
 
 	this.mEventPoolHeaderContent.empty();
 	this.mEventPoolHeaderContent.remove();
@@ -259,7 +262,7 @@ EventManagerScreen.prototype.createTableHeaderSpaceForEventPoolContainer = funct
 	this.mHideNonBroEventsCheckbox = $('<input type="checkbox" class="emi-checkbox" id="emi-hide-non-bro-events"/>');
 	summaryContent.append(this.mHideNonBroEventsCheckbox);
 
-    var checkboxLabel = $('<label class="emi-checkbox-label title-font-small font-bold font-color-brother-name" for="emi-hide-non-bro-events">Hide non-bro events</label>');
+    var checkboxLabel = $('<label class="emi-checkbox-label title-font-small font-bold font-color-brother-name" for="emi-hide-non-bro-events">Show only Brother Events</label>');
 
 	summaryContent.append(checkboxLabel);
 
@@ -391,12 +394,12 @@ EventManagerScreen.prototype.createFilterBar = function()
                 $(this).val(currentInput);
 
 				//self.filterEvents(currentInput);
-				self.mEventFilter(currentInput);
+				self.mEventFilterText(currentInput);
 			});
 	
-	var resetFilterButton = this.createCustomTabButton("Reset", function() {
-		self.filterEvents("");
-		self.mEventFilter = "";
+	var resetFilterButton = this.createCustomTabButton("Reset", function () {
+		self.mEventFilterText = "";
+		self.filterEvents();
 	}, 'emi-tab-button');
 
 	filterRow.append(resetFilterButton);
@@ -614,7 +617,7 @@ EventManagerScreen.prototype.hideMessage = function(_container)
 		.hide();
 }
 
-EventManagerScreen.prototype.filterEvents = function(_showOnlyBroEvents, _show9999CooldownEvents)
+EventManagerScreen.prototype.filterEvents = function()
 {
 	var self = this;
 
@@ -622,50 +625,66 @@ EventManagerScreen.prototype.filterEvents = function(_showOnlyBroEvents, _show99
 		return;
 	}
 
-	if (this.mVisibleContainer.children().length() === 0) {
+	if (this.mVisibleContainer.children().length === 0) {
 		return;
 	}
 
+	//self.mHide9999CooldownEventsCheckbox.prop('checked') === true
+
+	var filterText = "";
+	
+	if (this.mEventFilterText != null) {
+		filterText = this.mEventFilterText;
+	};
+
+	var showOnlyBroEvents = this.mHideNonBroEventsCheckbox.prop('checked') === true;
+	var show9999CooldownEvents = this.mHide9999CooldownEventsCheckbox.prop('checked') === false;
+
+	console.log("Filters: " + filterText + " " + showOnlyBroEvents + " " + show9999CooldownEvents);
+	
 	this.mVisibleContainer.find(".emi-event-container").each(function() {
-		// I think I need to make everything show first - think through this function again with some fresh coffeee..
-		var showEvent = false;
+		// ///take 1
+		// // I think I need to make everything show first - think through this function again with some fresh coffeee..
+		// var showEvent = false;
 
-		if (this.mEventFilter !== "" && $(this).attr("data-event-name").toLowerCase().search(_text) >= 0) {
-			showEvent = true;
-		}
+		// if (this.mEventFilterText !== "" && $(this).attr("data-event-name").toLowerCase().search(_text) >= 0) {
+		// 	showEvent = true;
+		// }
 
-		if (showEvent && _showOnlyBroEvents && $(this).attr("is-bro-event") === "true") {
-			showEvent = true;
-		}
+		// if (showEvent && _showOnlyBroEvents && $(this).attr("is-bro-event") === "true") {
+		// 	showEvent = true;
+		// }
 
-		if (showEvent && _show9999CooldownEvents && parseInt($(this).attr("on-cooldown-until-day")) < 9999) {
-			showEvent = true;
-		}
+		// if (showEvent && _show9999CooldownEvents && parseInt($(this).attr("on-cooldown-until-day")) < 9999) {
+		// 	showEvent = true;
+		// }
 
-		if (showEvent) {
-			$(this).show();
-		}
-		else {
-			$(this).hide();
-		}
+		// if (showEvent) {
+		// 	$(this).show();
+		// }
+		// else {
+		// 	$(this).hide();
+		// }
 
 		///take 2
 		$(this).show();
 
 		var hideEvent = false;
 
-		if (this.mEventFilter !== "" && this.mEventFilter.length() > 0 && $(this).attr("data-event-name").toLowerCase().search(_text) == -1) {
+		if (filterText !== "" && filterText.length() > 0 && $(this).attr("data-event-name").toLowerCase().search(_text) == -1) {
 			hideEvent = true;
 		}
 
-		if (!hideEvent && _showOnlyBroEvents && $(this).attr("is-bro-event") === "false") {
+		// only do this filter if viewing event pool
+		if (!hideEvent && showOnlyBroEvents && $(this).attr("is-bro-event") === "false") {
 			hideEvent = true;
 		}
 
-		if (!hideEvent && _show9999CooldownEvents && parseInt($(this).attr("on-cooldown-until-day")) >= 9999) {
+		// only do this filter when viewing events on cooldown
+		// this filter works opposite I think...
+		if (!hideEvent && show9999CooldownEvents && parseInt($(this).attr("on-cooldown-until-day")) >= 9999) {
 			hideEvent = true;
 		}
-
 
 		if (hideEvent) {
 			$(this).hide();
@@ -686,116 +705,116 @@ EventManagerScreen.prototype.toggleObscuringCrisesEvents = function(_obscure)
 	})
 }
 
-EventManagerScreen.prototype.filterEvents = function(_text) 
-{
-	var self = this;
+// EventManagerScreen.prototype.filterEvents = function(_text) 
+// {
+// 	var self = this;
 
-	if (_text == "") 
-	{
-		self.mEventPoolScrollContainer.find(".emi-event-container").show();
-		self.mEventCooldownScrollContainer.find(".emi-event-container").show();
-		this.mNameFilterInput.val("");
+// 	if (_text == "") 
+// 	{
+// 		self.mEventPoolScrollContainer.find(".emi-event-container").show();
+// 		self.mEventCooldownScrollContainer.find(".emi-event-container").show();
+// 		this.mNameFilterInput.val("");
 
-		// will need to happen at some point but only if there are no data elements
-		if (this.mEventData.BroHireEventsInPool.length > 0 || this.mEventData.NonBroHireEventsInPool.length > 0) {
-			self.hideMessage(self.mEventCooldownContainer);
-		}
-		if (this.mEventData.EventsOnCooldown.length > 0) {
-			self.hideMessage(self.mEventCooldownContainer);
-		}
-	}
-	else 
-	{
-		if (self.mEventPoolContainer.is(':visible'))
-		{
-			if (self.mEventPoolScrollContainer.children().length === 0) {
-				return;
-			}
+// 		// will need to happen at some point but only if there are no data elements
+// 		if (this.mEventData.BroHireEventsInPool.length > 0 || this.mEventData.NonBroHireEventsInPool.length > 0) {
+// 			self.hideMessage(self.mEventCooldownContainer);
+// 		}
+// 		if (this.mEventData.EventsOnCooldown.length > 0) {
+// 			self.hideMessage(self.mEventCooldownContainer);
+// 		}
+// 	}
+// 	else 
+// 	{
+// 		if (self.mEventPoolContainer.is(':visible'))
+// 		{
+// 			if (self.mEventPoolScrollContainer.children().length === 0) {
+// 				return;
+// 			}
 
-			self.mEventPoolScrollContainer.find(".emi-event-container").each(function() {
-				if ($(this).attr("data-event-name").toLowerCase().search(_text) == -1) {
-					$(this).hide();
-				}
-				else {
-					$(this).show();
-				}
-			})
+// 			self.mEventPoolScrollContainer.find(".emi-event-container").each(function() {
+// 				if ($(this).attr("data-event-name").toLowerCase().search(_text) == -1) {
+// 					$(this).hide();
+// 				}
+// 				else {
+// 					$(this).show();
+// 				}
+// 			})
 
-			if (!self.mEventPoolScrollContainer.find(".emi-event-container").is(":visible")) 
-			{
-				self.showMessage(self.mEventPoolContainer, "No events found");
-			}
-			else 
-			{
-				self.hideMessage(self.mEventPoolContainer);
-			}
-		}
-		else
-		{
-			if (self.mEventCooldownScrollContainer.children().length === 0) {
-				return;
-			}
+// 			if (!self.mEventPoolScrollContainer.find(".emi-event-container").is(":visible")) 
+// 			{
+// 				self.showMessage(self.mEventPoolContainer, "No events found");
+// 			}
+// 			else 
+// 			{
+// 				self.hideMessage(self.mEventPoolContainer);
+// 			}
+// 		}
+// 		else
+// 		{
+// 			if (self.mEventCooldownScrollContainer.children().length === 0) {
+// 				return;
+// 			}
 
-			self.mEventCooldownScrollContainer.find(".emi-event-container").each(function() {
-				if ($(this).attr("data-event-name").toLowerCase().search(_text) == -1) {
-					$(this).hide();
-				}
-				else {
-					$(this).show();
-				}
-			})
+// 			self.mEventCooldownScrollContainer.find(".emi-event-container").each(function() {
+// 				if ($(this).attr("data-event-name").toLowerCase().search(_text) == -1) {
+// 					$(this).hide();
+// 				}
+// 				else {
+// 					$(this).show();
+// 				}
+// 			})
 
-			if (!self.mEventCooldownScrollContainer.find(".emi-event-container").is(":visible")) 
-			{
-				self.showMessage(self.mEventCooldownContainer, "No events found");
-			}
-			else 
-			{
-				self.hideMessage(self.mEventCooldownContainer);
-			}
-		}
-	}
-}
+// 			if (!self.mEventCooldownScrollContainer.find(".emi-event-container").is(":visible")) 
+// 			{
+// 				self.showMessage(self.mEventCooldownContainer, "No events found");
+// 			}
+// 			else 
+// 			{
+// 				self.hideMessage(self.mEventCooldownContainer);
+// 			}
+// 		}
+// 	}
+// }
 
 EventManagerScreen.prototype.toggleShowingNormalEventsInPool = function (_hideEvents)
 {
-	this.filterEvents("");
+	this.filterEvents();
 
-	if (_hideEvents) {
-		this.mEventPoolScrollContainer.find(".emi-event-container").each(function() {
-			console.log("Is bro event? " + $(this).attr("is-bro-event"));
-			if ($(this).attr("is-bro-event") === "true") {
-				$(this).show();
-			}
-			else {
-				$(this).hide();
-			}
-		});
-	}	
-	else {
-		this.mEventPoolScrollContainer.find(".emi-event-container").show();			
-	}	
+	// if (_hideEvents) {
+	// 	this.mEventPoolScrollContainer.find(".emi-event-container").each(function() {
+	// 		console.log("Is bro event? " + $(this).attr("is-bro-event"));
+	// 		if ($(this).attr("is-bro-event") === "true") {
+	// 			$(this).show();
+	// 		}
+	// 		else {
+	// 			$(this).hide();
+	// 		}
+	// 	});
+	// }	
+	// else {
+	// 	this.mEventPoolScrollContainer.find(".emi-event-container").show();			
+	// }	
 }
 
 EventManagerScreen.prototype.toggleShowing9999CooldownEvents = function (_hideEvents) 
 {
-	this.filterEvents("");
+	this.filterEvents();
 	
-	if (_hideEvents) {
-		this.mEventCooldownScrollContainer.find(".emi-event-container").each(function() {
-			//console.log("On cooldown until day: " + $(this).attr("on-cooldown-until-day"));
-			if (parseInt($(this).attr("on-cooldown-until-day")) >= 9999) {
-				$(this).hide();
-			}
-			else {
-				$(this).show();
-			}
-		});
-	}
-	else {
-		//on-cooldown-until-day
-		this.mEventCooldownScrollContainer.find(".emi-event-container").show();	
-	}
+	// if (_hideEvents) {
+	// 	this.mEventCooldownScrollContainer.find(".emi-event-container").each(function() {
+	// 		//console.log("On cooldown until day: " + $(this).attr("on-cooldown-until-day"));
+	// 		if (parseInt($(this).attr("on-cooldown-until-day")) >= 9999) {
+	// 			$(this).hide();
+	// 		}
+	// 		else {
+	// 			$(this).show();
+	// 		}
+	// 	});
+	// }
+	// else {
+	// 	//on-cooldown-until-day
+	// 	this.mEventCooldownScrollContainer.find(".emi-event-container").show();	
+	// }
 }
 ///
 /// End utility functions

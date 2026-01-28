@@ -8,13 +8,16 @@
 	right: 0;
 	bottom: 0;
 	width: 102.4rem;
-	height: 80%;
+	height: 76.8rem;
 	position: absolute;
 	margin: auto;
 	z-index: 999;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+    background-image: url("coui://gfx/ui/skin/dialog_background_01.png");
+    background-size: 102.4rem 76.8rem;
+    background-repeat: no-repeat;
 	border: 5px solid transparent;
 	border-image:  url("coui://gfx/mods/msu/skin/generic_background_large_border.png") 50 fill / 1rem / 2rem stretch;
 }

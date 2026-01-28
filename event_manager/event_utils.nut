@@ -124,6 +124,12 @@
 		return eventId.find("event.crisis.") != null;
 	}
 
+	function getEventIcon(event)
+	{
+		// if one of the brother events.. get that class background photo..
+		// otherwise, use the unknown person icon as a default
+	}
+
 	function processEventsAndStoreValues()
 	{
 		//::logWarning("Now preparing events values");
@@ -189,7 +195,8 @@
 						cooldown = eventCooldown,
 						mayGiveBrother = false,
 						chanceForBrother = getChanceForBrother(allEvents[i]),
-						isCrisesEvent = isEventForACrises(allEvents[i])
+						isCrisesEvent = isEventForACrises(allEvents[i]),
+						icon = getEventIcon(allEvents[i])
 					};
 
 				if (eventMayGiveBrother(allEvents[i])) {
