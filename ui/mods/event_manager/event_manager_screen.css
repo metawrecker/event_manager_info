@@ -1,14 +1,14 @@
 /************************************
 * Mod Event Manager popup screen
 *************************************/
-.emi-screen
+/* .emi-screen
 {
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	width: 102.4rem;
-	height: 75%;
+	width: 102.4rem !important;
+	height: 75% !important;
 	position: absolute;
 	margin: auto;
 	z-index: 999;
@@ -17,6 +17,81 @@
 	align-items: center;
 	border: 5px solid transparent;
 	border-image: url("coui://gfx/mods/msu/skin/generic_background_large_border.png") 50 fill / 1rem / 2rem stretch;
+} */
+
+.emi-screen
+{
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	overflow: hidden;
+	z-index: 900;
+}
+
+.emi-screen > .emi-screen-container
+{
+	top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 102.4rem;
+    height: 76.8rem;
+    position: absolute;
+    margin: auto;
+    z-index: 999;
+}
+
+.emi-screen > .emi-screen-container .l-tab-container
+{
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 88.0rem;
+    height: 3.0rem;
+    display: flex;
+	justify-content: center;
+    margin: auto;
+}
+
+.emi-screen > .emi-screen-container .l-tab-container .l-tab-button
+{
+    width: 17.4rem;
+    height: 4.3rem;
+    float: left;
+    margin-right: 0.66rem;
+    line-height: 3.0rem;
+}
+
+.emi-screen > .emi-screen-container .l-tab-container .l-tab-button:last-child
+{
+    margin-right: 0;
+}
+
+.emi-screen > .emi-screen-container .footer .l-button-bar
+{
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 16.0rem;
+    height: 4.3rem;
+    position: absolute;
+    margin: auto;
+}
+
+
+.emi-screen > .emi-screen-container .footer .l-leave-button
+{
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 17.5rem;
+    position: absolute;
+
+    line-height: 3.0rem;
 }
 
 
@@ -58,12 +133,36 @@
 /************************************
 * Summary Header styling
 *************************************/
+.emi-content-header
+{
+	/* height: 9rem; */
+	width: 100%;
+	/* padding: 1rem;
+	padding-bottom: 1.5rem;
+	margin-bottom: 1rem; */
+}
+
+.emi-table-header
+{
+	display: flex;
+	margin-top: 1rem;
+	padding-top: 1rem;
+	padding-bottom: 1rem;	
+	padding-left: 4rem;
+	padding-right: 5.5rem;
+	flex-direction: row;
+}
+
 .emi-event-summary
 {
-	height: 3rem;
-	padding: 1rem;
-	width: 100%;
-	margin: 1rem;
+	/* height: 3rem; */
+	/* padding: 1rem; */
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+	padding-left: 3.5rem;
+	padding-right: 3.5rem;
+	/* width: 100%; */
+	margin-bottom: 1rem;
 	display: flex;
 	flex-direction: row;
 }
@@ -78,38 +177,22 @@
 
 
 /************************************
-* Summary Header styling
-*************************************/
-.emi-content-header
-{
-	height: 9rem;
-	width: 100%;
-	padding: 1rem;
-	padding-bottom: 1.5rem;
-	margin-bottom: 1rem;
-}
-.emi-table-header
-{
-	display: flex;
-	height: 2rem;
-	margin-top: 1rem;
-	padding: 1rem;
-	padding-left: 2.5rem;
-	padding-right: 3rem;
-	flex-direction: row;
-}
-
-
-/************************************
 * Event container styling
 *************************************/
 .emi-content-container
 {
-	flex: 1;
+	/* flex: 1; */
 	width: 100%;
 	overflow: auto;
 	justify-content: center;
 	align-items: center;
+	position: absolute !important;
+	top: 95;
+	left: 0;
+	right: 0;
+	bottom: 70;
+	padding-left: 3.5rem;
+	padding-right: 3rem;
 }
 .emi-content-message
 {
@@ -128,57 +211,68 @@
 {
 	display:flex;
 	flex-direction: row;
-	height: 3.3rem;
+	height: 5rem;
+	align-items: center;
 	/* padding-top: .5rem;
 	padding-bottom: .5rem;
 	margin-left: 15px;
 	margin-right: 15px; */
 	margin-top: 10px;
 	margin-bottom: 10px;
-	border: 10px solid transparent;
-	border-image:  url("coui://gfx/mods/msu/skin/generic_background_large_border.png") 50 fill stretch;
+	border: 4px solid transparent;
+	border-image: url("coui://gfx/mods/msu/skin/generic_background_large_border.png") 50 fill stretch;
+}
+.emi-event-container:first-child
+{
+	margin-top:0;
+}
+.emi-event-container:last-child
+{
+	margin-bottom: 0;
 }
 .emi-event-item-icon-container
 {
-	width: 10%;
+	width: 8%;
 	display: flex;
-	justify-content: center;
+	padding-left: 1rem;
+	justify-content: start;
 }
 .emi-event-item-icon
 {
 	/* width: 100%; */
 	height: 100%;
+	
 	object-fit: contain;
 	/* padding: 2rem; */
 }
 .emi-event-item-name
 {
-	width: 65%;
+	width: 77%;
 	justify-content: start;
-	margin-bottom: 3px;
 }
 .emi-event-item-score
 {
-	width: 25%;
-	margin-bottom: 3px;
+	width: 15%;
+	justify-content: start;
+	/* margin-bottom: 3px; */
 }
 .emi-cooldown-item-name
 {
 	width:40%;
 	justify-content: start;
-	margin-bottom: 3px;
+	/* margin-bottom: 3px; */
 }
 .emi-cooldown-item-fired-on
 {
 	width:30%;
 	justify-content: start;
-	margin-bottom: 3px;
+	/* margin-bottom: 3px; */
 }
 .emi-cooldown-item-cooldown-until-day
 {
 	width:30%;
 	justify-content: start;
-	margin-bottom: 3px;
+	/* margin-bottom: 3px; */
 }
 .brother-highlight
 {
@@ -193,11 +287,14 @@
 {
 	width:100%;
 	height:5rem;
-	padding: 2rem;
-	padding-left: 5rem;
+	padding-left: 3.5rem;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	position: absolute;
+	bottom: 12;
+	left: 0;
+	right: 0;
 }
 .emi-overview-filter-by-name-row
 {
@@ -277,7 +374,7 @@
 /************************************
 * Custom Header Button
 *************************************/
-.ui-control.emi-custom-header-button
+/* .ui-control.emi-custom-header-button
 {
 	width: 100%;
 	height: 5.5rem;
@@ -374,7 +471,7 @@
     top: 2.0rem;
     left: 1.0rem;
 }
-
+ */
 
 /************************************
 * Custom Tab Button
@@ -482,3 +579,78 @@
     top: -0.2rem;
     left: 0.1rem;
 }
+
+
+/************************************
+* Custom emi-button-7 Styles
+*************************************/
+/*.ui-control.emi-button-7
+{
+	width: 100%;
+	height: 100%;
+	position: relative;
+
+    background-image: url("coui://gfx/ui/skin/button_tab_default.png");
+    background-size: 17.4rem 4.3rem;
+	text-shadow: 1px 1px 1px #000;
+
+    color: #dda21f;
+}
+.ui-control.emi-button-7:hover
+{
+	background-image: url("coui://gfx/ui/skin/button_tab_hovered.png");
+    background-size: 17.4rem 4.3rem;
+    color: #f0b121;
+	opacity: .9;
+}
+.ui-control.emi-button-7.is-selected
+{
+    background-image: url("coui://gfx/ui/skin/button_tab_hovered.png");
+    background-size: 17.4rem 4.3rem;
+    color: #f0b121;
+}
+.ui-control.emi-button-7.is-selected
+{
+    color: #f0b121;
+}
+.ui-control.emi-button-7.is-active
+{
+    background-image: url("coui://gfx/ui/skin/button_tab_hovered.png");
+    background-size: 17.4rem 4.3rem;
+    color: #f0b121;
+}
+.ui-control.emi-button-7[disabled]
+{
+	color : #a7a7a7;
+    background-image: url("coui://gfx/ui/skin/button_tab_inactive.png");
+    background-size: 17.4rem 4.3rem;
+}
+
+.ui-control.emi-button-7[disabled]:hover
+{
+    background-image: url("coui://gfx/ui/skin/button_tab_inactive.png");
+    background-size: 17.4rem 4.3rem;
+}
+
+.ui-control.emi-button-7[disabled]:active
+{
+    background-image: url("coui://gfx/ui/skin/button_tab_inactive.png");
+    background-size: 17.4rem 4.3rem;
+}
+.ui-control.emi-button-7 > .label
+{
+    top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	position: absolute;
+    margin-top: 0.4rem;
+	text-align : center;
+    overflow: hidden;
+}
+.ui-control.emi-button-7.is-selected > .label
+{
+    top: 0;
+    left: 0;
+}
+	*/

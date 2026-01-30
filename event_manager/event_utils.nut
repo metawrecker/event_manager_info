@@ -37,6 +37,20 @@
 		}
 	},
 
+	function eventIsBrotherEvent(event)
+	{
+		local currentEventId = event.getID();
+
+		foreach ( key, eventId in this.m.BroHireEventIds)
+		{
+			if (currentEventId == eventId) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	function eventMayGiveBrother(event)
 	{
 		local currentEventId = event.getID();
@@ -255,6 +269,7 @@
 						score = eventScore,
 						cooldown = eventCooldown,
 						mayGiveBrother = false,
+						isBroEvent = eventIsBrotherEvent(allEvents[i]),
 						chanceForBrother = getChanceForBrother(allEvents[i]),
 						isCrisesEvent = isEventForACrises(allEvents[i]),
 						icon = getEventIcon(allEvents[i])
