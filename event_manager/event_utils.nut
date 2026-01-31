@@ -140,10 +140,8 @@
 
 	function getEventIcon(event)
 	{
-		//local iconPath = 'gfx/ui/icons/unknown_traits.png';
-
 		local currentEventId = event.getID();
-		local multipleBrosPossibleIcon = "ui/icons/round_information/brothers_icon_old.png";
+		local multipleBrosPossibleIcon = "ui/icons/unknown_traits.png";
 		local backgroundIconBasePath = "ui/backgrounds/";
 
 		switch (currentEventId) {
@@ -200,9 +198,14 @@
 				return backgroundIconBasePath + "background_32.png";
 			case "event.desert_well":
 				return backgroundIconBasePath + "background_19.png";
+			case "event.dog_in_swamp":
+			case "event.adopt_wardog":
+				return "ui/orientation/dog_01_orientation.png";
+			case "event.adopt_warhound":
+				return "ui/orientation/dog_02_orientation.png";
 		}
 
-		return "ui/icons/unknown_traits.png";
+		return "ui/icons/round_information/round_number_icon.png";
 		// if one of the brother events.. get that class background photo..
 		// otherwise, use the unknown person icon as a default
 	}

@@ -6,23 +6,31 @@
 }
 
 /*
-	To do
 	(0.9.6)
-	. Reset form on hide() (done)
+	. Reset form on hide()
 	. Fix defaulting to hiding 9999 cooldown events not working
 	. Fix show() and hide() not resetting the UI back to first state
 	. Add MSU settings to connect to checkboxes
 	. Fix Checkboxes not resetting correctly on form hide(). They stay check/non-check but the grid does not update respective to them.
-	. Add icon to events to highlight bro events
-	. Copy UI sections from existing vanilla forms like the retinue page
+	. Add icon to events on the Event Pool page
+	. Implement vanilla 'dialog screen' UI
 	. Fix issue where only bro events that qualify appear in the filtered bro event list
+	. Fix grid header and content alignment (somewhat.. it's still not perfect)
+	. Fix Crises events appearing. Instead, obfuscate the crises event text and call it something generic "crises event". Add checkbox and MSU setting to default behavior of displaying or hiding by default
+	. Make world map auto pause when showing UI
+	. Disable any world map interactions when showing UI
+	. Enabled ability to close the UI using same keybind used to open it
+	.	This only works when NOT focusing on the filter box
 
+	todo
 	. Investigate more readable day numbers (especially with rounding!)
 	. Add logic to process events in the cooldown list
-	. Fix grid header and content alignment
-	. Fix Crises events appearing. Instead, obfuscate the crises event text and call it something generic "crises event". Add checkbox and MSU setting to default behavior of displaying or hiding by default
 	. Make event_utils more efficient by not calling getID() over and over..
 	. Create tooltips
+	. Icon on cooldown page??
+	. Fix cooldown page grid UI
+	. Add dog icon to dog events
+	. Fix issue where the filter box arrests attention away from the keybinds
 
 */
 
@@ -47,16 +55,6 @@ foreach (mod in requiredMods) {
 
 	::EventManagerInfo.Mod.Registry.addModSource(::MSU.System.Registry.ModSourceDomain.GitHub, ::EventManagerInfo.GitHubUrl);
 	::EventManagerInfo.Mod.Registry.setUpdateSource(::MSU.System.Registry.ModSourceDomain.GitHub);
-
-	// ::EventManagerInfo.DisplayUI <- function()
-	// {
-	// 	::EventManagerInfo.EventScreen.show();
-	// }
-
-	// ::EventManagerInfo.HideUI <- function()
-	// {
-	// 	::EventManagerInfo.EventScreen.hide();
-	// }
 
 	::Hooks.registerJS("ui/mods/event_manager/event_manager_screen.js");
 	::Hooks.registerCSS("ui/mods/event_manager/event_manager_screen.css");
