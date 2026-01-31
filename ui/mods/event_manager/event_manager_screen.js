@@ -79,77 +79,88 @@ EventManagerScreen.prototype.create = function(_parentDiv)
 	this.bindTooltips();
 };
 
-EventManagerScreen.prototype.show = function (_data)
-{
-	if (_data != null) {
-		this.mEventData = _data;
+EventManagerScreen.prototype.setData = function (_data)
+{    
+	this.mEventData = _data;
 
-		this.populateSummary(_data);
-		this.populateEventsContainer(_data);
-		this.populateEventCooldownContainer(_data);
-		this.toggleObscuringCrisesEvents();
-		this.setDefaultsPerMSUISettings();
-		this.filterEvents();
-	}
-
-	var self = this;
-	var moveTo = { opacity: 1 };
-	
-	this.mContainer.velocity("finish", true).velocity(moveTo,
-	{
-		duration: Constants.SCREEN_SLIDE_IN_OUT_DELAY,
-		easing: 'swing',
-		begin: function ()
-		{
-			$(this).show();
-			$(this).css("opacity", 0);
-			self.notifyBackendOnAnimating();
-		},
-		complete: function ()
-		{
-			self.mIsVisible = true;
-			//self.mNameFilterInput.focus();
-			self.notifyBackendOnShown();
-		}
-	});
-	this.onShow();
+	this.populateSummary(_data);
+	this.populateEventsContainer(_data);
+	this.populateEventCooldownContainer(_data);
+	this.toggleObscuringCrisesEvents();
+	this.setDefaultsPerMSUISettings();
+	this.filterEvents();
 };
 
-EventManagerScreen.prototype.hide = function ()
-{
-	var self = this;
-	var moveTo = { opacity: 0 };
+// EventManagerScreen.prototype.show = function (_data)
+// {
+// 	var self = this;
+// 	var moveTo = { opacity: 1 };
 
-	this.mContainer.velocity("finish", true).velocity(moveTo,
-	{
-		duration: Constants.SCREEN_FADE_IN_OUT_DELAY,
-		easing: 'swing',
-		begin: function()
-		{
-			self.notifyBackendOnAnimating();
-		},
-		complete: function()
-		{
-			$(this).hide();
-			self.switchToEventsInPoolPanel();
-			self.notifyBackendOnHidden();
-		}
-	});
-	this.onHide();
-};
+// 	// if (this.mSQHandle == null) {
+// 	// 	console.log("mSQHandle is null!");
+// 	// }
+// 	// else 
+// 	// {
+// 	// 	console.log("mSQHandle is not null!");
+// 	// }	
 
-EventManagerScreen.prototype.onConnection = function (_handle, _parentDiv)
-{
-	_parentDiv = _parentDiv || $('.root-screen');
-    this.mSQHandle = _handle;
-    this.register(_parentDiv);
-};
+// 	this.mContainer.velocity("finish", true).velocity(moveTo,
+// 	{
+// 		duration: Constants.SCREEN_SLIDE_IN_OUT_DELAY,
+// 		easing: 'swing',
+// 		begin: function ()
+// 		{
+// 			$(this).show();
+// 			$(this).css("opacity", 0);
+// 			self.notifyBackendOnAnimating();
+// 		},
+// 		complete: function ()
+// 		{
+// 			self.mIsVisible = true;
+// 			//self.mNameFilterInput.focus();
+// 			self.notifyBackendOnShown();
+// 		}
+// 	});
 
-EventManagerScreen.prototype.onDisconnection = function ()
-{
-    this.mSQHandle = null;
-    this.unregister();
-};
+// 	this.onShow();
+// };
+
+// EventManagerScreen.prototype.hide = function ()
+// {
+// 	var self = this;
+// 	var moveTo = { opacity: 0 };
+
+// 	this.mContainer.velocity("finish", true).velocity(moveTo,
+// 	{
+// 		duration: Constants.SCREEN_FADE_IN_OUT_DELAY,
+// 		easing: 'swing',
+// 		begin: function()
+// 		{
+// 			self.notifyBackendOnAnimating();
+// 		},
+// 		complete: function()
+// 		{
+// 			$(this).hide();
+// 			self.mIsVisible = false;
+// 			self.notifyBackendOnHidden();
+// 		}
+// 	});
+
+// 	this.onHide();
+// };
+
+// EventManagerScreen.prototype.onConnection = function (_handle, _parentDiv)
+// {
+// 	_parentDiv = _parentDiv || $('.root-screen');
+//     this.mSQHandle = _handle;
+//     this.register(_parentDiv);
+// };
+
+// EventManagerScreen.prototype.onDisconnection = function ()
+// {
+//     this.mSQHandle = null;
+//     this.unregister();
+// };
 
 EventManagerScreen.prototype.destroyDIV = function ()
 {
@@ -197,10 +208,12 @@ EventManagerScreen.prototype.destroyDIV = function ()
 
 EventManagerScreen.prototype.onShow = function()
 {
+	this.mNameFilterInput.focus();
 };
 
 EventManagerScreen.prototype.onHide = function()
 {
+	this.switchToEventsInPoolPanel();
 };
 
 EventManagerScreen.prototype.destroy = function()
@@ -217,9 +230,8 @@ EventManagerScreen.prototype.destroy = function()
 ///
 EventManagerScreen.prototype.createDIV = function (_parentDiv)
 {
-	this.mContainer = $("<div class='emi-screen'/>")
-		.appendTo(_parentDiv)
-		.hide();
+	this.mContainer = $("<div class='emi-screen display-none opacity-none'/>")
+		.appendTo(_parentDiv);
 
 	//this.mDialogContainer = $("<div class='emi-screen-container ui-control dialog dialog-1024-768'/>")
 	var dialogLayout = $("<div class='emi-screen-container'/>")
@@ -240,6 +252,8 @@ EventManagerScreen.prototype.createDIV = function (_parentDiv)
 	this.createEventCooldownContainer();
 	this.createFilterBar();
 	this.createFooter();
+
+	this.mIsVisible = false;
 };
 
 // EventManagerScreen.prototype.createHeader = function ()
@@ -434,7 +448,6 @@ EventManagerScreen.prototype.createFilterBar = function()
                 currentInput = currentInput.replace(//g, '');
                 $(this).val(currentInput);
 
-				//self.filterEvents(currentInput);
 				self.mEventFilterText = currentInput;
 				self.filterEvents();
 			});
@@ -624,16 +637,14 @@ EventManagerScreen.prototype.createEventOnCooldownSection = function(_eventData)
 ///
 EventManagerScreen.prototype.onLeaveButtonPressed = function()
 {
-	this.hide();
+	this.notifyBackendToCloseUI();
 }
 
 EventManagerScreen.prototype.switchToEventsInPoolPanel = function ()
 {
 	this.mVisibleContainer = this.mEventPoolScrollContainer;
-	
-	// $('#emi-event-cooldown-button').removeClass("is-active");
+
 	$('#emi-event-cooldown-button').removeClass("is-selected");
-	// $('#emi-event-pool-button').addClass("is-active");
 	$('#emi-event-pool-button').addClass("is-selected");
 	
 	this.mNameFilterInput.val("");
@@ -711,8 +722,6 @@ EventManagerScreen.prototype.filterEvents = function()
 	var showOnlyBroEvents = this.mHideNonBroEventsCheckbox.prop('checked') === true;
 	var hide9999CooldownEvents = this.mHide9999CooldownEventsCheckbox.prop('checked') === true;
 
-	//console.log("Filters: " + filterText + " " + showOnlyBroEvents + " " + show9999CooldownEvents);
-	
 	this.mVisibleContainer.find(".emi-event-container").each(function() {
 		$(this).show();
 
@@ -773,88 +782,9 @@ EventManagerScreen.prototype.setDefaultsPerMSUISettings = function()
 	this.mObscureCrisesEvents = obscureCrisesEvents;
 }
 
-// EventManagerScreen.prototype.toggleShowingNormalEventsInPool = function (_hideEvents)
-// {
-// 	this.filterEvents();	
-// }
-
-// EventManagerScreen.prototype.toggleShowing9999CooldownEvents = function (_hideEvents) 
-// {
-// 	this.filterEvents();
-// }
-///
-/// End utility functions
-///
-
 ///
 /// Begin custom UI elements
 ///
-// EventManagerScreen.prototype.createCustomEmiHeaderButton = function (_text, _callback, _classes) 
-// {
-// 	var result = $('<div class="ui-control emi-custom-header-button text-font-normal"/>');
-
-//     if (_classes !== undefined && _classes !== null && typeof(_classes) === 'string')
-//     {
-//         result.addClass(_classes);
-//     }
-
-// 	if (_text !== undefined && _text !== null && typeof(_text) === 'string')
-//     {
-//         var label = $('<span class="label">' + _text + '</span>');
-//         result.append(label);
-//     }
-
-//     if (_callback !== undefined && _callback !== null && typeof(_callback) === 'function')
-//     {
-//         result.on("click", function ()
-//         {
-//             var disabled = $(this).attr('disabled');
-//             if (disabled !== null && disabled !== 'disabled')
-// 			{
-//                 _callback($(this));
-//             }
-//         });
-//     }
-
-//     result.on("mousedown", function ()
-//     {
-//         var disabled = $(this).attr('disabled');
-//         if(disabled !== null && disabled !== 'disabled')
-// 		{
-//             $(this).addClass('is-selected');
-//         }
-// 		else
-// 		{
-//             $(this).removeClass('is-selected');
-//         }
-//     });
-
-//     result.on("mouseup", function ()
-//     {
-//         $(this).removeClass('is-selected');
-//     });
-
-//     result.on("mouseenter", function ()
-//     {
-//         var disabled = $(this).attr('disabled');
-//         if (disabled !== null && disabled !== 'disabled')
-//         {
-//             $(this).addClass('is-selected');
-//         }
-//         else
-//         {
-//             $(this).removeClass('is-selected');
-//         }
-//     });
-
-//     result.on("mouseleave", function ()
-//     {
-//         $(this).removeClass('is-selected');
-//     });
-
-//     return result;
-// }
-
 EventManagerScreen.prototype.createCustomTabButton = function(_text, _callback, _classes)
 {
 	var result = $('<div class="ui-control emi-custom-tab-button text-font-normal"/>');
@@ -925,37 +855,45 @@ EventManagerScreen.prototype.unbindTooltips = function ()
 ///
 /// Begin backend notification functions
 ///
-EventManagerScreen.prototype.notifyBackendPopupVisible = function ( _data )
-{
-	if (this.mSQHandle !== null)
-	{
-		SQ.call(this.mSQHandle, 'onPopupVisible', _data);
-	}
-};
+// EventManagerScreen.prototype.notifyBackendPopupVisible = function ( _data )
+// {
+// 	if (this.mSQHandle !== null)
+// 	{
+// 		SQ.call(this.mSQHandle, 'onPopupVisible', _data);
+// 	}
+// };
 
-EventManagerScreen.prototype.notifyBackendOnShown = function ()
-{
-	if (this.mSQHandle !== null)
-	{
-		SQ.call(this.mSQHandle, 'onScreenShown');
-	}
-};
+// EventManagerScreen.prototype.notifyBackendOnShown = function ()
+// {
+// 	if (this.mSQHandle !== null)
+// 	{
+// 		SQ.call(this.mSQHandle, 'onScreenShown');
+// 	}
+// };
 
-EventManagerScreen.prototype.notifyBackendOnHidden = function ()
-{
-	if (this.mSQHandle !== null)
-	{
-		SQ.call(this.mSQHandle, 'onScreenHidden');
-	}
-};
+// EventManagerScreen.prototype.notifyBackendOnHidden = function ()
+// {
+// 	if (this.mSQHandle !== null)
+// 	{
+// 		SQ.call(this.mSQHandle, 'onScreenHidden');
+// 	}
+// };
 
-EventManagerScreen.prototype.notifyBackendOnAnimating = function ()
+// EventManagerScreen.prototype.notifyBackendOnAnimating = function ()
+// {
+// 	if (this.mSQHandle !== null)
+// 	{
+// 		SQ.call(this.mSQHandle, 'onScreenAnimating');
+// 	}
+// };
+
+EventManagerScreen.prototype.notifyBackendToCloseUI = function ()
 {
-	if (this.mSQHandle !== null)
-	{
-		SQ.call(this.mSQHandle, 'onScreenAnimating');
-	}
-};
+    if (this.mSQHandle !== null)
+    {
+        SQ.call(this.mSQHandle, 'onCloseButtonPressed');
+    }
+}
 ///
 /// End backend notification functions
 ///

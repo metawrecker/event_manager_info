@@ -48,17 +48,21 @@ foreach (mod in requiredMods) {
 	::EventManagerInfo.Mod.Registry.addModSource(::MSU.System.Registry.ModSourceDomain.GitHub, ::EventManagerInfo.GitHubUrl);
 	::EventManagerInfo.Mod.Registry.setUpdateSource(::MSU.System.Registry.ModSourceDomain.GitHub);
 
-	::EventManagerInfo.DisplayEventsInUI <- function()
-	{
-		::EventManagerInfo.EventScreen.show();
-	}
+	// ::EventManagerInfo.DisplayUI <- function()
+	// {
+	// 	::EventManagerInfo.EventScreen.show();
+	// }
 
-	::include("event_manager/file_loading");
+	// ::EventManagerInfo.HideUI <- function()
+	// {
+	// 	::EventManagerInfo.EventScreen.hide();
+	// }
 
 	::Hooks.registerJS("ui/mods/event_manager/event_manager_screen.js");
 	::Hooks.registerCSS("ui/mods/event_manager/event_manager_screen.css");
 
 	::EventManagerInfo.EventScreen <- ::new("scripts/ui/screens/event_manager_screen");
-
 	::MSU.UI.registerConnection(::EventManagerInfo.EventScreen);
+
+	::include("event_manager/file_loading");
 });
