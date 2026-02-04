@@ -461,7 +461,7 @@ EventManagerScreen.prototype.populateSummary = function(_data)
 		broChance = (_data.EventBroHireScore / _data.AllScores * 1.0 * 100.0);
 	}
 
-	var text = "Chance for a brother event to fire: " + broChance.toFixed(2) + "% " + "(" + _data.EventBroHireScore + " / " + _data.AllScores + ")";
+	var text = "Chance for a brother event to fire: " + broChance.toFixed(2) + "% " + "(" + _data.EventBroHireScore + " / " + _data.AllScores.toFixed(2) + ")";
 	$("#emi-chance-for-a-brother").text(text);
 }
 
@@ -473,14 +473,24 @@ EventManagerScreen.prototype.createEventInPoolRow = function(_eventData)
 	iconField.append(image);
 
 	var eventName = _eventData.name;
+	var eventScore = 0;
+	var eventCooldown = 0;
 
 	if (_eventData.chanceForBrother < 100) {
 		eventName = eventName + " (" + _eventData.chanceForBrother + "% Chance)";
 	}
 
+	if (_eventData.score != null && _eventData.score >= 0) {
+		eventScore = _eventData.score.toFixed(2);
+	}
+
+	if (_eventData.cooldown != null && _eventData.cooldown >= 0) {
+		eventCooldown = _eventData.cooldown.toFixed(2);
+	}
+
 	var nameField = $("<div class='emi-event-item-name title-font-normal font-bold font-color-description'>" + eventName + "</div>");
-	var scoreField = $("<div class='emi-event-item-score title-font-normal font-bold font-color-description'>" + _eventData.score + "</div>");
-	var cooldownField = $("<div class='emi-event-item-cooldown title-font-normal font-bold font-color-description'>" + _eventData.cooldown + "</div>");
+	var scoreField = $("<div class='emi-event-item-score title-font-normal font-bold font-color-description'>" + eventScore + "</div>");
+	var cooldownField = $("<div class='emi-event-item-cooldown title-font-normal font-bold font-color-description'>" + eventCooldown + "</div>");
 	
 	if (_eventData.mayGiveBrother) {
 		nameField.addClass('brother-highlight').addClass('emi-is-brother-event'); ///.addClass('font-bold');

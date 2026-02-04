@@ -34,7 +34,10 @@
 			MelonThief = "event.melon_thief",
 			TheHorseman = "event.the_horseman",
 			DesertWell = "event.desert_well"
-		}
+		},
+		WorldSecondsPerDay = this.World.getTime().SecondsPerDay, //should be 105
+		GameSaveIsFirstGameAfterGameLaunch = false,
+		TimeToAddToMatchWorldClock = 0
 	},
 
 	function eventIsBrotherEvent(event)
@@ -120,6 +123,8 @@
 	function getChanceForBrother(event)
 	{
 		switch (event.getID()) {
+			case "event.anatomist_helps_blighted_guy_1":
+				return 50;
 			case "event.runaway_laborers":
 				return 70;
 			case "event.thief_caught":
@@ -207,33 +212,8 @@
 		// otherwise, use the unknown person icon as a default
 	}
 
-	// function investigateDateTime()
-	// {
-	// 	try {
-	// 		//local event = /* get an event instance */;
-	// 		// local func = this.World.getTime;
-
-	// 		// // Try these:
-	// 		// this.logInfo(typeof func); // Is it just "function" or something more?
-	// 		// this.logInfo(func.tostring()); // Does this reveal anything?
-
-	// 		// local time = this.World.getTime();
-
-	// 		::MSU.Log.printData(this.World.getTime().__getTable);
-
-	// 		::MSU.Log.printData(this.Time);
-	// 	} catch (exception){
-	// 		::logError(exception);
-	// 	}
-	// }
-
-	function convertEventFiredDateToWorldDate(event)
+	function investigateDateTime()
 	{
-		// pretty sure world starts at 1 day 2 hours while getVirtualTimeF starts at 0. Both progress at 105 seconds per day from what I see..
-
-		// manual calculation of adding getVirtualTimeF + 105 (1 day) + 8.75 (2 hours) wasn't right..
-		// BUT it could be a first game of the game launch for 1 day + 10 minutes)
-
 		local currentTime = this.World.getTime();
 
 		::logInfo("VirtualTimeF: " + this.Time.getVirtualTimeF());
@@ -246,18 +226,124 @@
 		::logInfo("Time Of Day: " + currentTime.TimeOfDay);
 		::logInfo("Time String: " + this.Const.Strings.World.TimeOfDay[currentTime.TimeOfDay]);
 
-		local daysCalc = currentTime.Days * 105;
-		local hoursCalc = currentTime.Hours * 4.375;
-		local minutesCalc = currentTime.Minutes * 0.0729166666666667;
+		// local daysCalc = currentTime.Days * 105;
+		// local hoursCalc = currentTime.Hours * 4.375;
+		// local minutesCalc = currentTime.Minutes * 0.0729166666666667;
 
+		// local mapClock = daysCalc + hoursCalc + minutesCalc;
+		// local timeOffset = mapClock - this.Time.getVirtualTimeF();
+
+
+	}
+
+	function determineIfGameSaveWasCreatedFirstOnGameLoad()
+	{
+		local currentTime = this.World.getTime();
+		local virtualTime = this.Time.getVirtualTimeF();
+
+		local daysCalc = currentTime.Days * currentTime.SecondsPerDay;
+		local hoursCalc = currentTime.Hours * currentTime.SecondsPerHour;
+		local minutesCalc = currentTime.Minutes * (currentTime.SecondsPerHour / 60);
 		local mapClock = daysCalc + hoursCalc + minutesCalc;
-		local minusVirtualTIme = mapClock - this.Time.getVirtualTimeF();
+		local timeOffset = mapClock - virtualTime;
 
 		::logInfo("DaysCalc: " + daysCalc);
 		::logInfo("HoursCalc: " + hoursCalc);
 		::logInfo("MinutesCalc: " + minutesCalc);
 		::logInfo("MapClock: " + mapClock);
-		::logInfo("Time Diff: " + minusVirtualTIme);
+		::logInfo("Time Diff: " + timeOffset);
+
+		this.m.GameSaveIsFirstGameAfterGameLaunch = timeOffset >= 105 && timeOffset <= 106;
+		this.m.TimeToAddToMatchWorldClock = timeOffset;
+
+		::logInfo("Game save is first one after game launch: " + this.m.GameSaveIsFirstGameAfterGameLaunch);
+		::logInfo("Seconds to add to virtual clock to match world clock: " + this.m.TimeToAddToMatchWorldClock)
+
+		if (timeOffset >= 105 && timeOffset <= 106)
+		{
+			::logInfo("This game is the first campaign after loading the game");
+			return true;
+		}
+
+		::logInfo("This game is the second+ campaign after loading the game");
+		return false;
+	}
+
+	function convertEventFiredDateToWorldDate(event)
+	{
+
+		// pretty sure world starts at 1 day 2 hours while getVirtualTimeF starts at 0. Both progress at 105 seconds per day from what I see..
+
+		// manual calculation of adding getVirtualTimeF + 105 (1 day) + 8.75 (2 hours) wasn't right..
+		// BUT it could be a first game of the game launch for 1 day + 10 minutes)
+		///		the difference here is about 8 game seconds.
+
+		// will need to calculate once per save load to determine if the save was created first after game launch
+
+		/* CooldownUntil
+			93: event.nut > fire() > this.m.CooldownUntil = this.Time.getVirtualTimeF() + this.m.Cooldown;
+		*/
+
+		/* this.m.Cooldown
+			Every event.nut file > X (whatever number) * this.World.getTime().SecondsPerDay
+		*/
+		// local coolDownVirtualTimeF = event.m.CooldownUntil - (event.m.Cooldown / this.m.WorldSecondsPerDay);
+		// local coolDownVirtualTimeFCorrected = coolDownVirtualTimeF + this.m.TimeToAddToMatchWorldClock;
+
+		// local oldCooldownUntil = (event.m.CooldownUntil / this.m.WorldSecondsPerDay);
+		// local oldFiredOn = oldCooldownUntil - (event.m.Cooldown / this.m.WorldSecondsPerDay);
+
+		local newCoolDownUntil = ((event.m.CooldownUntil + this.m.TimeToAddToMatchWorldClock) / this.m.WorldSecondsPerDay);
+		local newFiredOn = newCoolDownUntil - (event.m.Cooldown / this.m.WorldSecondsPerDay);
+
+		// local logObj = {
+		// 	Name = createHumanReadableEventName(event.getID())
+		// 	OldCooldownUntil = oldCooldownUntil,
+		// 	OldFiredOn = oldFiredOn,
+
+		// 	//CooldownUntilVirtualTime = coolDownVirtualTimeF,
+		// 	//CorrectedCooldownUntilVirtualTime = coolDownVirtualTimeFCorrected,
+
+		// 	NewCooldownUntil = newCoolDownUntil,
+		// 	NewFiredOn = newFiredOn
+		// }
+
+		/*
+		************************************************************
+		Event Name: Cow Tipping
+		Event Cooldown: 10504082.00
+		Event Cooldown Divided: 99999.00
+
+		coolDownVirtualTimeF: 10404083.0
+		coolDownVirtualTimeFCorrected: 10404311.00
+
+		Old Cooldown Until: 100038.88
+		Old Fired On: 39.88
+
+		New Cooldown Until: 99088.68
+		New Fired On: -910.32
+		************************************************************
+
+		*/
+
+		// local formatString = "%.2f";
+
+		// ::logInfo("************************************************************");
+		// ::logInfo("Event Name: " + createHumanReadableEventName(event.getID()));
+		// ::logInfo("Event Cooldown: " + format(formatString, event.m.CooldownUntil));
+		// ::logInfo("Event Cooldown Divided: " + format(formatString, event.m.Cooldown / this.m.WorldSecondsPerDay));
+		// //::logInfo("coolDownVirtualTimeF: " + format(formatString, coolDownVirtualTimeF));
+		// //::logInfo("coolDownVirtualTimeFCorrected: " + format(formatString, coolDownVirtualTimeFCorrected));
+		// ::logInfo("Old Cooldown Until: " + format(formatString, oldCooldownUntil));
+		// ::logInfo("Old Fired On: " + format(formatString, oldFiredOn));
+		// ::logInfo("New Cooldown Until: " + format(formatString, newCoolDownUntil));
+		// ::logInfo("New Fired On: " + format(formatString, newFiredOn));
+		// ::logInfo("************************************************************");
+		// ::logInfo(" " );
+
+		//::MSU.Log.printData(logObj);
+
+		return newCoolDownUntil;
 	}
 
 	function createTimeOfDayDisplay(event)
@@ -270,9 +356,9 @@
 	{
 		local eventManager = ::World.Events;
 
-		//investigateDateTime()
+		investigateDateTime();
 
-		convertEventFiredDateToWorldDate(null);
+		determineIfGameSaveWasCreatedFirstOnGameLoad();
 
 		this.m.BroHireEventsInPool = [],
 		this.m.NonBroHireEventsInPool = [],
@@ -302,16 +388,18 @@
 			}
 
 			if (allEvents[i].getScore() == 0 && allEvents[i].m.CooldownUntil > 0 && !allEvents[i].isSpecial()) {
-				local cooldownUntil = (allEvents[i].m.CooldownUntil / this.World.getTime().SecondsPerDay);
+				local worldDateConverted = convertEventFiredDateToWorldDate(allEvents[i]);
+
+				local cooldownUntil = worldDateConverted; // (allEvents[i].m.CooldownUntil / this.World.getTime().SecondsPerDay);
 				local firedOn = cooldownUntil - (allEvents[i].m.Cooldown / this.World.getTime().SecondsPerDay);
 
-				local debugObj = {
-					cooldownUntil = allEvents[i].m.CooldownUntil,
-					cooldownUntilCalc = cooldownUntil,
-					firedOn = firedOn
-				};
+				// local debugObj = {
+				// 	cooldownUntil = allEvents[i].m.CooldownUntil,
+				// 	cooldownUntilCalc = cooldownUntil,
+				// 	firedOn = firedOn
+				// };
 
-				::MSU.Log.printData(debugObj);
+				// ::MSU.Log.printData(debugObj);
 
 				if (cooldownUntil > 9999) {
 					cooldownUntil = 9999;
@@ -322,7 +410,7 @@
 						name = createHumanReadableEventName(allEvents[i].getID()),
 						firedOnDay = firedOn,
 						mayGiveBrother = eventMayGiveBrother(allEvents[i]),
-						onCooldownUntilDay = ::MSU.Math.roundToDec( cooldownUntil, 4 ),
+						onCooldownUntilDay = cooldownUntil,
 						icon = getEventIcon(allEvents[i])
 					});
 			}
@@ -341,7 +429,7 @@
 				local eventToAdd = {
 						id = allEvents[i].getID(),
 						name = createHumanReadableEventName(allEvents[i].getID()),
-						score = ::MSU.Math.roundToDec(eventScore, 2),
+						score = eventScore,
 						cooldown = eventCooldown,
 						mayGiveBrother = false,
 						isBroEvent = eventIsBrotherEvent(allEvents[i]),
