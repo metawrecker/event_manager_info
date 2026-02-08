@@ -1,8 +1,8 @@
-::EventManagerInfo.TooltipIdentifiers <- {
+::EventInfo.TooltipIdentifiers <- {
 	Form = {
 		EventBroChance = ::MSU.Class.BasicTooltip("Chance For An Event Brother Event", function () {
 			local tooltipText = "This number is a sum of all the event brother events that you can unlock right now (highlighted in yellow/gold) divided by the entire event pool."
-			local eventBros = ::EventManagerInfo.Events.getBroHiringEventsInQueue();
+			local eventBros = ::EventInfo.Events.getBroHiringEventsInQueue();
 			local actualScore = 0;
 
 			if (eventBros.len() == 0) {
@@ -34,7 +34,7 @@
 				}
 			}
 
-			local sumOfAllEvents = ::EventManagerInfo.Events.getAllEventScore();
+			local sumOfAllEvents = ::EventInfo.Events.getAllEventScore();
 
 			if (sumOfAllEvents <= 0) {
 				sumOfAllEvents = 1;
@@ -42,7 +42,7 @@
 
 			local chanceForABro = actualScore / (sumOfAllEvents * 1.0) * 100.0;
 
-			if (chanceForABro != ::EventManagerInfo.Events.getEventBroHiringScore()) {
+			if (chanceForABro != ::EventInfo.Events.getEventBroHiringScore()) {
 				tooltipText = tooltipText + "\n\n" + "Chance for a new brother is: " + ::MSU.Math.roundToDec(chanceForABro, 2) + "%"
 					+ " (" + actualScore + " / " + sumOfAllEvents + ")";
 			}
@@ -58,4 +58,4 @@
 	}
 }
 
-::EventManagerInfo.Mod.Tooltips.setTooltips(::EventManagerInfo.TooltipIdentifiers);
+::EventInfo.Mod.Tooltips.setTooltips(::EventInfo.TooltipIdentifiers);

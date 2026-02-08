@@ -7,7 +7,7 @@
 // 	{
 // 		onSelectEvent();
 
-// 		::EventManagerInfo.PrintEventsToLog(false, false);
+// 		::EventInfo.PrintEventsToLog(false, false);
 // 	}
 // });
 

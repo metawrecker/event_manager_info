@@ -1,12 +1,13 @@
-::EventManagerInfo <- {
-	ID = "mod_event_manager_info",
+::EventInfo <- {
+	ID = "mod_event_info",
 	Name = "Event Info",
 	Version = "0.9.8",
-	GitHubUrl = "https://github.com/metawrecker/event_manager_info"
+	GitHubUrl = "https://github.com/metawrecker/event_info"
 }
 
 /*
 	(0.9.8)
+	* Changed name of the mod and git repo to event_info, away from event_manager_info.
 	* Changed font color in most of the UI to not be the bright yellow title font.
 	* Events that may reward a bro are now assigned the shiny bright yellow font. Gone is the green font.
 	* Fixed issue where some events would display many decimal places.
@@ -40,26 +41,26 @@ foreach (mod in requiredMods) {
 	modLoadOrder.push(">" + (idx == null ? mod : mod.slice(0, idx)));
 }
 
-::EventManagerInfo.HooksMod <- ::Hooks.register(::EventManagerInfo.ID, ::EventManagerInfo.Version, ::EventManagerInfo.Name);
-::EventManagerInfo.HooksMod.require(requiredMods);
+::EventInfo.HooksMod <- ::Hooks.register(::EventInfo.ID, ::EventInfo.Version, ::EventInfo.Name);
+::EventInfo.HooksMod.require(requiredMods);
 
-::EventManagerInfo.HooksMod.queue(modLoadOrder, function() {
- 	local mod = ::MSU.Class.Mod(::EventManagerInfo.ID, ::EventManagerInfo.Version, ::EventManagerInfo.Name);
-	::EventManagerInfo.Mod <- mod;
+::EventInfo.HooksMod.queue(modLoadOrder, function() {
+ 	local mod = ::MSU.Class.Mod(::EventInfo.ID, ::EventInfo.Version, ::EventInfo.Name);
+	::EventInfo.Mod <- mod;
 
-	::EventManagerInfo.Mod.Registry.addModSource(::MSU.System.Registry.ModSourceDomain.GitHub, ::EventManagerInfo.GitHubUrl);
-	::EventManagerInfo.Mod.Registry.setUpdateSource(::MSU.System.Registry.ModSourceDomain.GitHub);
+	::EventInfo.Mod.Registry.addModSource(::MSU.System.Registry.ModSourceDomain.GitHub, ::EventInfo.GitHubUrl);
+	::EventInfo.Mod.Registry.setUpdateSource(::MSU.System.Registry.ModSourceDomain.GitHub);
 
-	::Hooks.registerJS("ui/mods/event_manager/event_manager_screen.js");
-	::Hooks.registerCSS("ui/mods/event_manager/event_manager_screen.css");
+	::Hooks.registerJS("ui/mods/event_info/event_info_screen.js");
+	::Hooks.registerCSS("ui/mods/event_info/event_info_screen.css");
 
-	::EventManagerInfo.EventScreen <- ::new("scripts/ui/screens/event_manager_screen");
-	::MSU.UI.registerConnection(::EventManagerInfo.EventScreen);
+	::EventInfo.EventScreen <- ::new("scripts/ui/screens/event_info_screen");
+	::MSU.UI.registerConnection(::EventInfo.EventScreen);
 
-	::include("event_manager/file_loading");
+	::include("event_info/file_loading");
 
-	::EventManagerInfo.HideUI <- function()
+	::EventInfo.HideUI <- function()
 	{
-		::EventManagerInfo.EventScreen.hide();
+		::EventInfo.EventScreen.hide();
 	}
 });

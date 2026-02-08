@@ -1,6 +1,6 @@
-this.event_manager_screen <- ::inherit("scripts/mods/msu/ui_screen", {
+this.event_info_screen <- ::inherit("scripts/mods/msu/ui_screen", {
 	m = {
-		ID = "EventManagerScreen"
+		ID = "EventInfoScreen"
 	},
 
 	function create()
@@ -10,7 +10,7 @@ this.event_manager_screen <- ::inherit("scripts/mods/msu/ui_screen", {
 
 	function getUIData()
 	{
-		::EventManagerInfo.Events.processEventsAndStoreValues();
+		::EventInfo.Events.processEventsAndStoreValues();
 
 		local ret = {
 			BroHireEventsInPool = [],
@@ -21,12 +21,12 @@ this.event_manager_screen <- ::inherit("scripts/mods/msu/ui_screen", {
 			EventBroHireScore = 0
 		};
 
-		ret.BroHireEventsInPool = ::EventManagerInfo.Events.getBroHiringEventsInQueue();
-		ret.NonBroHireEventsInPool = ::EventManagerInfo.Events.getNonBroHiringEventsInQueue();
-		ret.EventsOnCooldown = ::EventManagerInfo.Events.getEventsOnCooldown();
-		ret.AllScores = ::EventManagerInfo.Events.getAllEventScore();
-		ret.NonEventBroHireScore = ::EventManagerInfo.Events.getNonEventBroHiringScore();
-		ret.EventBroHireScore = ::EventManagerInfo.Events.getEventBroHiringScore();
+		ret.BroHireEventsInPool = ::EventInfo.Events.getBroHiringEventsInQueue();
+		ret.NonBroHireEventsInPool = ::EventInfo.Events.getNonBroHiringEventsInQueue();
+		ret.EventsOnCooldown = ::EventInfo.Events.getEventsOnCooldown();
+		ret.AllScores = ::EventInfo.Events.getAllEventScore();
+		ret.NonEventBroHireScore = ::EventInfo.Events.getNonEventBroHiringScore();
+		ret.EventBroHireScore = ::EventInfo.Events.getEventBroHiringScore();
 
 		return ret;
 	}
@@ -38,7 +38,7 @@ this.event_manager_screen <- ::inherit("scripts/mods/msu/ui_screen", {
 		this.Cursor.setCursor(this.Const.UI.Cursor.Hand);
 
 		::World.State.m.MenuStack.push(function(){
-			::EventManagerInfo.EventScreen.hide();
+			::EventInfo.EventScreen.hide();
 			this.setAutoPause(false);
 		});
 

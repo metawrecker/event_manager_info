@@ -1,5 +1,4 @@
-local generalPage = ::EventManagerInfo.Mod.ModSettings.addPage("Page", "General");
-
+local generalPage = ::EventInfo.Mod.ModSettings.addPage("Page", "General");
 
 generalPage.addTitle("eventPoolTitle", "Event Pool Settings");
 generalPage.addDivider("eventPoolDivider");

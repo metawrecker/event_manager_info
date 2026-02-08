@@ -1,10 +1,10 @@
 "use strict";
-var EventManagerScreen = function (_parent)
+var EventInfoScreen = function (_parent)
 {
 	MSUUIScreen.call(this);
 
-	this.mID = "EventManagerScreen";
-	this.mModId = "mod_event_manager_info";
+	this.mID = "EventInfoScreen";
+	this.mModId = "mod_event_info";
 	this.mContainer = null;
 	this.mDialogContainer = null;
 	this.mContentContainer = null;
@@ -63,9 +63,9 @@ var EventManagerScreen = function (_parent)
 	};
 */
 
-EventManagerScreen.prototype = Object.create(MSUUIScreen.prototype);
-Object.defineProperty(EventManagerScreen.prototype, 'constructor', {
-	value: EventManagerScreen,
+EventInfoScreen.prototype = Object.create(MSUUIScreen.prototype);
+Object.defineProperty(EventInfoScreen.prototype, 'constructor', {
+	value: EventInfoScreen,
 	enumerable: false,
 	writable: true
 });
@@ -73,13 +73,13 @@ Object.defineProperty(EventManagerScreen.prototype, 'constructor', {
 ///
 /// Begin form functions
 ///
-EventManagerScreen.prototype.create = function(_parentDiv)
+EventInfoScreen.prototype.create = function(_parentDiv)
 {
 	this.createDIV(_parentDiv);
 	this.bindTooltips();
 };
 
-EventManagerScreen.prototype.setData = function (_data)
+EventInfoScreen.prototype.setData = function (_data)
 {    
 	this.mEventData = _data;
 
@@ -91,7 +91,7 @@ EventManagerScreen.prototype.setData = function (_data)
 	this.filterEvents();
 };
 
-EventManagerScreen.prototype.destroyDIV = function ()
+EventInfoScreen.prototype.destroyDIV = function ()
 {
 	this.mHideNonBroEventsCheckbox = null;
 	this.mHide9999CooldownEventsCheckbox = null;
@@ -135,17 +135,17 @@ EventManagerScreen.prototype.destroyDIV = function ()
 	this.mContainer = null;
 };
 
-EventManagerScreen.prototype.onShow = function()
+EventInfoScreen.prototype.onShow = function()
 {
 	//this.mNameFilterInput.focus();
 };
 
-EventManagerScreen.prototype.onHide = function()
+EventInfoScreen.prototype.onHide = function()
 {
 	this.switchToEventsInPoolPanel();
 };
 
-EventManagerScreen.prototype.destroy = function()
+EventInfoScreen.prototype.destroy = function()
 {
 	this.unbindTooltips();
 	this.destroyDIV();
@@ -157,7 +157,7 @@ EventManagerScreen.prototype.destroy = function()
 ///
 /// Begin creation of HTML elements
 ///
-EventManagerScreen.prototype.createDIV = function (_parentDiv)
+EventInfoScreen.prototype.createDIV = function (_parentDiv)
 {
 	this.mContainer = $("<div class='emi-screen display-none opacity-none'/>")
 		.appendTo(_parentDiv);
@@ -183,7 +183,7 @@ EventManagerScreen.prototype.createDIV = function (_parentDiv)
 	this.mIsVisible = false;
 };
 
-EventManagerScreen.prototype.createButtonBar = function () 
+EventInfoScreen.prototype.createButtonBar = function () 
 {
 	var self = this
 	var layout = $('<div class="l-tab-button"/>');
@@ -206,7 +206,7 @@ EventManagerScreen.prototype.createButtonBar = function ()
 	eventCooldownButton.attr("id", "emi-event-cooldown-button");
 }
 
-EventManagerScreen.prototype.createTableHeaderSpaceForEventPoolContainer = function ()
+EventInfoScreen.prototype.createTableHeaderSpaceForEventPoolContainer = function ()
 {
 	var self = this;
 	this.mEventPoolHeaderContent = $('<div id="emi-event-pool-header-content" class="emi-content-header"/>')
@@ -246,7 +246,7 @@ EventManagerScreen.prototype.createTableHeaderSpaceForEventPoolContainer = funct
 		.append($("<div class='emi-event-item-cooldown title-font-normal font-bold font-color-description'>Cooldown</div>"));
 }
 
-EventManagerScreen.prototype.createTableHeaderSpaceForEventCooldownContainer = function ()
+EventInfoScreen.prototype.createTableHeaderSpaceForEventCooldownContainer = function ()
 {
 	var self = this;
 	this.mEventCooldownHeaderContent = $('<div id="emi-event-cooldown-header-content" class="emi-content-header"/>')
@@ -283,7 +283,7 @@ EventManagerScreen.prototype.createTableHeaderSpaceForEventCooldownContainer = f
 		.append($("<div class='emi-cooldown-item-cooldown-until-day title-font-normal font-bold font-color-description'>Available On Day</div>"));
 }
 
-EventManagerScreen.prototype.createEventPoolContainer = function ()
+EventInfoScreen.prototype.createEventPoolContainer = function ()
 {
 	this.mEventPoolContainer = $('<div id="emi-event-pool-container" class="emi-content-container"/>');
 	this.mContentContainer.append(this.mEventPoolContainer);
@@ -309,7 +309,7 @@ EventManagerScreen.prototype.createEventPoolContainer = function ()
 	   });
 }
 
-EventManagerScreen.prototype.createEventCooldownContainer = function ()
+EventInfoScreen.prototype.createEventCooldownContainer = function ()
 {
 	this.mEventCooldownContainer = $('<div id="emi-event-cooldown-container" class="emi-content-container"/>')
 		.hide();
@@ -334,7 +334,7 @@ EventManagerScreen.prototype.createEventCooldownContainer = function ()
 	   });
 }
 
-EventManagerScreen.prototype.createFilterBar = function()
+EventInfoScreen.prototype.createFilterBar = function()
 {
 	var filterContainer = $('<div class="emi-overview-filter-container"/>')
 		.appendTo(this.mContentContainer);
@@ -380,7 +380,7 @@ EventManagerScreen.prototype.createFilterBar = function()
 	.appendTo(filterRow);
 }
 
-EventManagerScreen.prototype.createFooter = function ()
+EventInfoScreen.prototype.createFooter = function ()
 {
 	var self = this;
 
@@ -401,7 +401,7 @@ EventManagerScreen.prototype.createFooter = function ()
 ///
 /// Begin adding data
 ///
-EventManagerScreen.prototype.populateEventsContainer = function(_data)
+EventInfoScreen.prototype.populateEventsContainer = function(_data)
 {
 	var self = this;
 
@@ -427,7 +427,7 @@ EventManagerScreen.prototype.populateEventsContainer = function(_data)
 	});
 }
 
-EventManagerScreen.prototype.populateEventCooldownContainer = function(_data)
+EventInfoScreen.prototype.populateEventCooldownContainer = function(_data)
 {
 	var self = this;
 
@@ -453,7 +453,7 @@ EventManagerScreen.prototype.populateEventCooldownContainer = function(_data)
 	});
 }
 
-EventManagerScreen.prototype.populateSummary = function(_data) 
+EventInfoScreen.prototype.populateSummary = function(_data) 
 {
 	var broChance = 1.0;
 
@@ -465,7 +465,7 @@ EventManagerScreen.prototype.populateSummary = function(_data)
 	$("#emi-chance-for-a-brother").text(text);
 }
 
-EventManagerScreen.prototype.createEventInPoolRow = function(_eventData)
+EventInfoScreen.prototype.createEventInPoolRow = function(_eventData)
 {
 	var iconField = $("<div class='emi-event-item-icon-container'/>");
 	var image = $('<img class="emi-event-item-icon"/>');
@@ -510,7 +510,7 @@ EventManagerScreen.prototype.createEventInPoolRow = function(_eventData)
 	return eventContainer;
 }
 
-EventManagerScreen.prototype.createEventOnCooldownRow = function(_eventData)
+EventInfoScreen.prototype.createEventOnCooldownRow = function(_eventData)
 {
 	// var firedOnDay = 0;
 	var onCooldownUntilDay = 0;
@@ -555,12 +555,12 @@ EventManagerScreen.prototype.createEventOnCooldownRow = function(_eventData)
 ///
 /// Begin button press functions
 ///
-EventManagerScreen.prototype.onLeaveButtonPressed = function()
+EventInfoScreen.prototype.onLeaveButtonPressed = function()
 {
 	this.notifyBackendToCloseUI();
 }
 
-EventManagerScreen.prototype.switchToEventsInPoolPanel = function ()
+EventInfoScreen.prototype.switchToEventsInPoolPanel = function ()
 {
 	this.mVisibleContainer = this.mEventPoolScrollContainer;
 
@@ -580,7 +580,7 @@ EventManagerScreen.prototype.switchToEventsInPoolPanel = function ()
 	this.filterEvents();
 }
 
-EventManagerScreen.prototype.switchToEventsOnCooldownPanel = function () 
+EventInfoScreen.prototype.switchToEventsOnCooldownPanel = function () 
 {
 	this.mVisibleContainer = this.mEventCooldownScrollContainer;
 
@@ -606,7 +606,7 @@ EventManagerScreen.prototype.switchToEventsOnCooldownPanel = function ()
 ///
 /// Begin utility functions
 ///
-EventManagerScreen.prototype.showMessage = function(_container, _message)
+EventInfoScreen.prototype.showMessage = function(_container, _message)
 {
 	return; //do nothing for now -
 	_container.find('.emi-content-message')
@@ -614,14 +614,14 @@ EventManagerScreen.prototype.showMessage = function(_container, _message)
 		.show();
 }
 
-EventManagerScreen.prototype.hideMessage = function(_container) 
+EventInfoScreen.prototype.hideMessage = function(_container) 
 {
 	return; //do nothing for now -
 	_container.find('.emi-content-message')
 		.hide();
 }
 
-EventManagerScreen.prototype.filterEvents = function()
+EventInfoScreen.prototype.filterEvents = function()
 {
 	var self = this;
 
@@ -665,7 +665,7 @@ EventManagerScreen.prototype.filterEvents = function()
 	});
 }
 
-EventManagerScreen.prototype.toggleObscuringCrisesEvents = function() 
+EventInfoScreen.prototype.toggleObscuringCrisesEvents = function() 
 {
 	var obscureCrisesEvents = this.mObscureCrisesEvents;
 
@@ -679,11 +679,22 @@ EventManagerScreen.prototype.toggleObscuringCrisesEvents = function()
 	})
 }
 
-EventManagerScreen.prototype.setDefaultsPerMSUISettings = function() 
+EventInfoScreen.prototype.setDefaultsPerMSUISettings = function() 
 {
-	var showOnlyBroEvents = MSU.getSettingValue(this.mModId, "DefaultOnlyShowBroEvents");
-	var hide9999CooldownEvents = MSU.getSettingValue(this.mModId, "DefaultHide9999Events");
-	var obscureCrisesEvents = MSU.getSettingValue(this.mModId, "ObscureCrisesEvents");
+	var showOnlyBroEvents = false; 
+	var hide9999CooldownEvents = true; 
+	var obscureCrisesEvents = true;
+
+	/// I don't think this is a good idea to hide this - the log won't go to game log and will just appear as a bug
+
+
+	try {
+		showOnlyBroEvents = MSU.getSettingValue(this.mModId, "DefaultOnlyShowBroEvents");
+		hide9999CooldownEvents = MSU.getSettingValue(this.mModId, "DefaultHide9999Events");
+		obscureCrisesEvents = MSU.getSettingValue(this.mModId, "ObscureCrisesEvents");
+	} catch (error) {
+		console.log("Error while getting MSU settings for Event Info mod" + error);
+	}
 
 	if (showOnlyBroEvents) {
 		this.mHideNonBroEventsCheckbox.iCheck('check');
@@ -705,7 +716,7 @@ EventManagerScreen.prototype.setDefaultsPerMSUISettings = function()
 ///
 /// Begin custom UI elements
 ///
-EventManagerScreen.prototype.createCustomTabButton = function(_text, _callback, _classes)
+EventInfoScreen.prototype.createCustomTabButton = function(_text, _callback, _classes)
 {
 	var result = $('<div class="ui-control emi-custom-tab-button text-font-normal"/>');
 
@@ -737,12 +748,12 @@ EventManagerScreen.prototype.createCustomTabButton = function(_text, _callback, 
 ///
 /// Begin tooltips
 ///
-EventManagerScreen.prototype.bindTooltips = function ()
+EventInfoScreen.prototype.bindTooltips = function ()
 {
 
 };
 
-EventManagerScreen.prototype.unbindTooltips = function ()
+EventInfoScreen.prototype.unbindTooltips = function ()
 {
 
 };
@@ -753,13 +764,13 @@ EventManagerScreen.prototype.unbindTooltips = function ()
 ///
 /// Begin popupDialog functions
 ///
-// EventManagerScreen.prototype.setPopupDialog = function ( _dialog )
+// EventInfoScreen.prototype.setPopupDialog = function ( _dialog )
 // {
 // 	this.mPopupDialog = _dialog;
 // 	this.notifyBackendPopupVisible(true);
 // };
 
-// EventManagerScreen.prototype.destroyPopupDialog = function ()
+// EventInfoScreen.prototype.destroyPopupDialog = function ()
 // {
 // 	if(this.mPopupDialog !== null)
 // 	{
@@ -775,7 +786,7 @@ EventManagerScreen.prototype.unbindTooltips = function ()
 ///
 /// Begin backend notification functions
 ///
-EventManagerScreen.prototype.notifyBackendToCloseUI = function ()
+EventInfoScreen.prototype.notifyBackendToCloseUI = function ()
 {
     if (this.mSQHandle !== null)
     {
@@ -786,4 +797,4 @@ EventManagerScreen.prototype.notifyBackendToCloseUI = function ()
 /// End backend notification functions
 ///
 
-registerScreen("EventManagerScreen", new EventManagerScreen());
+registerScreen("EventInfoScreen", new EventInfoScreen());

@@ -1,4 +1,4 @@
-::EventManagerInfo.Events <- {
+::EventInfo.Events <- {
 	m = {
 		BroHireEventsInPool = [],
 		NonBroHireEventsInPool = [],
@@ -207,14 +207,19 @@
 
 	function setEventTimeWorldMapTimeOffset()
 	{
+		local mapTime = this.World.getTime();
 		local currentTime = this.World.getTime().Time;
 		local virtualTime = this.Time.getVirtualTimeF();
 
 		this.m.TimeToAddToMatchWorldClock = currentTime - virtualTime;
 
-		::logInfo("Event Time: " + currentTime);
-		::logInfo("Map Time: " + virtualTime);
-		::logInfo("Time Diff: " + this.m.TimeToAddToMatchWorldClock);
+		// ::logInfo("Map Time: " + currentTime);
+		// ::logInfo("Map Day #: " + mapTime.Days);
+		// ::logInfo("Map Hour #: " + mapTime.Hours);
+		// ::logInfo("Map Minute #: " + mapTime.Minutes);
+		// ::logInfo("Map Time of Day: " + this.Const.Strings.World.TimeOfDay[mapTime.TimeOfDay]);
+		// ::logInfo("Event Time: " + virtualTime);
+		// ::logInfo("Time Diff: " + this.m.TimeToAddToMatchWorldClock);
 	}
 
 	function getEventCooldownSecondsInWorldClockTime(event)
@@ -224,18 +229,47 @@
 
 	function createTimeOfDayDisplay(eventDays)
 	{
+		local currentTime = this.World.getTime();
+		local secondsPerDay = currentTime.SecondsPerDay;
+		local secondsPerHour = currentTime.SecondsPerHour;
+		local secondsPerMinute = secondsPerHour / 60;
+		local timeDisplay = "";
+		local hours = 0;
+		local minutes = 0;
+		local seconds = 0;
+		//local formatString = "%.2f";
+		local eventTimeSeconds = 0;
+
+		// ::logInfo("************************************************************");
+		// ::logInfo("Entry Fired On: " + eventDays);
+
 		local days = this.Math.floor(eventDays);
 		local partialDay = eventDays % 1;
-		local seconds = partialDay * 105;
-		local hours = this.Math.floor(seconds / 4.375);
-		local minutes = this.Math.floor(hours / 60);
-		local timeDisplay = "";
+		local secondsRemaining = partialDay * 105;
 
+		// ::logInfo("# Days: " + days);
+		// ::logInfo("Partial Day: " + format(formatString, partialDay));
 
+		if (secondsRemaining >= secondsPerHour) {
+			hours = this.Math.floor(secondsRemaining / secondsPerHour);
+			secondsRemaining = secondsRemaining - (hours * secondsPerHour);
+		}
+
+		if (secondsRemaining >= secondsPerMinute) {
+			minutes = this.Math.floor(secondsRemaining / secondsPerMinute)
+			secondsRemaining = secondsRemaining - (minutes * secondsPerMinute);
+		}
+
+		if (secondsRemaining > 0) {
+			seconds = secondsRemaining;
+		}
+
+		local timeDisplay = days + " - ";
 
 		if (::mods_getRegisteredMod("mod_hardened") != null)
 		{
 			//Hardened:
+			//https://github.com/Darxo/Hardened/blob/68e1eb6053b39931820d69d325cb00a4d57bf1e8/mod_hardened/hooks/config/root_table.nut
 
 			// ::Const.Strings.World.TimeOfDay <- [
 			// 	"Morning", 0, 1
@@ -252,51 +286,30 @@
 			// 	"Sunrise", 22, 23 (This is a new numerical day..)
 			// ];
 
-			//https://github.com/Darxo/Hardened/blob/68e1eb6053b39931820d69d325cb00a4d57bf1e8/mod_hardened/hooks/config/root_table.nut
-
-			// calculate TimeOfDay into a 12-block day
-			//ret.TimeOfDay <- ::Math.floor(time.Hours / 2);
-			//if (ret.Hours >= 22) ret.Days++;
-				// Vanilla treats hour 22 and 23 as day even though its still the previous day. So we flip the day counter over already during these hours
-
-			// Adjust DayTime slightly
-			//ret.IsDaytime <- ::Const.World.TimeOfDay.isDay(ret.TimeOfDay);
-
-			::logInfo("Hardened mod detected - factoring alternative TimeOfDay schedule");
-
-
-			/// I don't think this is going to work since Hardened increments Days after hours 22...
-			timeDisplay = days + " - ";
-
 			if (hours >= 0 && hours <= 5) {
 				timeDisplay += this.Const.Strings.World.TimeOfDay[0]; //" Morning";
 			}
-
-			// need to fill in the rest..
-			// else if (hours == 1 || (hours == 2 && minutes == 0)) {
-			// 	timeDisplay += this.Const.Strings.World.TimeOfDay[1]; //Morning;
-			// }
-			// else if ((hours == 2 && minutes > 1) || (hours > 2 && hours <= 8) || (hours == 9 && minutes == 0)) {
-			// 	timeDisplay += this.Const.Strings.World.TimeOfDay[2]; //Midday
-			// }
-			// else if ((hours == 9 && minutes > 1) || (hours > 9 && hours <= 12) || (hours == 13 && minutes == 0)) {
-			// 	timeDisplay += this.Const.Strings.World.TimeOfDay[3]; //Afternoon
-			// }
-			// else if ((hours == 13 && minutes > 1) || (hours == 14 && minutes == 0)) {
-			// 	timeDisplay += this.Const.Strings.World.TimeOfDay[4]; //Evening
-			// }
-			// else if (hours == 14 && minutes > 0 || (hours > 14 && hours <= 16) || (hours == 17 && minutes == 0)) {
-			// 	timeDisplay += this.Const.Strings.World.TimeOfDay[5]; //Dusk
-			// }
-			// else if (hours == 17 && minutes > 0 || (hours > 17 && hours <= 21) || (hours == 22 && minutes == 0)) {
-			// 	timeDisplay += this.Const.Strings.World.TimeOfDay[6]; //Night
-			// }
-			// else if (hours == 22 || hours == 23) {
-			// 	timeDisplay += this.Const.Strings.World.TimeOfDay[7]; //Dawn
-			// }
-
-
-
+			else if (hours == 6 || hours == 7) {
+				timeDisplay += this.Const.Strings.World.TimeOfDay[3]; //" Midday";
+			}
+			else if (hours >= 8 && hours <= 13) {
+				timeDisplay += this.Const.Strings.World.TimeOfDay[4]; //" Afternoon";
+			}
+			else if (hours == 14 || hours == 15) {
+				timeDisplay += this.Const.Strings.World.TimeOfDay[7]; //" Sunset";
+			}
+			else if (hours == 16 || hours == 17) {
+				timeDisplay += this.Const.Strings.World.TimeOfDay[8]; //" Dusk";
+			}
+			else if (hours == 18 || hours == 19) {
+				timeDisplay += this.Const.Strings.World.TimeOfDay[9]; //" Midnight";
+			}
+			else if (hours == 20 || hours == 21) {
+				timeDisplay += this.Const.Strings.World.TimeOfDay[10]; //" Dawn";
+			}
+			else if (hours == 22 || hours == 23) {
+				timeDisplay = days + 1 + " - " + this.Const.Strings.World.TimeOfDay[11]; //" Sunrise";
+			}
 		}
 		else
 		{
@@ -312,10 +325,6 @@
 			// "Night" - 17, 18, 19, 20, 21, 22
 			// "Dawn" - 22, 23
 			// ];
-
-			::logInfo("Vanilla detected - factoring original TimeOfDay schedule");
-
-			timeDisplay = days + " - ";
 
 			if (hours == 0) {
 				timeDisplay += this.Const.Strings.World.TimeOfDay[0]; //" Dawn";
@@ -341,20 +350,11 @@
 			else if (hours == 22 || hours == 23) {
 				timeDisplay += this.Const.Strings.World.TimeOfDay[7]; //Dawn
 			}
-			// else {
-			// 	timeDisplay += hours.tostring();
-			// }
 		}
 
-
-
-		// ::logInfo("************************************************************");
-		// ::logInfo("Entry days: " + format(formatString, eventDays));
-		// ::logInfo("Partial Day: " + format(formatString, partialDay));
-		// ::logInfo("Days: " + format(formatString, days));
-		// ::logInfo("Seconds: " + format(formatString, seconds));
 		// ::logInfo("Hours: " + format(formatString, hours));
 		// ::logInfo("Minutes: " + format(formatString, minutes));
+		// ::logInfo("Seconds: " + format(formatString, seconds));
 		// ::logInfo("Time Display: " + timeDisplay);
 		// ::logInfo("************************************************************");
 
@@ -363,6 +363,13 @@
 
 	function processEventsAndStoreValues()
 	{
+		if (::mods_getRegisteredMod("mod_hardened") != null) {
+			::logInfo("Hardened mod detected - factoring timings and cooldowns using the alternative TimeOfDay schedule");
+		}
+		else {
+			::logInfo("Vanilla detected - factoring timings and cooldowns using the original TimeOfDay schedule");
+		}
+
 		local eventManager = ::World.Events;
 
 		setEventTimeWorldMapTimeOffset();
@@ -391,6 +398,8 @@
 				allEvents[i].update();
 			}
 
+			local currentEventId = allEvents[i].getID();
+
 			if (allEvents[i].getScore() == 0 && allEvents[i].m.CooldownUntil > 0 && !allEvents[i].isSpecial()) {
 				local coolDownSeconds = getEventCooldownSecondsInWorldClockTime(allEvents[i]);
 				local cooldownUntil = coolDownSeconds / this.m.WorldSecondsPerDay;
@@ -403,14 +412,14 @@
 				}
 
 				this.m.EventsOnCooldown.append({
-						id = allEvents[i].getID(),
-						name = createHumanReadableEventName(allEvents[i].getID()),
+						id = currentEventId,
+						name = createHumanReadableEventName(currentEventId),
 						firedOnNumber = firedOn,
 						firedOnDay = firedOnDisplay,
 						mayGiveBrother = eventMayGiveBrother(allEvents[i]),
 						onCooldownUntilDay = coolDownDisplay,
 						onCooldownUntilDayNumber = cooldownUntil,
-						icon = getEventIcon(allEvents[i])
+						icon = getEventIcon(currentEventId)
 					});
 			}
 
@@ -425,10 +434,8 @@
 
 				this.m.AllScores += eventScore;
 
-				local currentEventId = allEvents[i].getID();
-
 				local eventToAdd = {
-						id = allEvents[i].getID(),
+						id = currentEventId,
 						name = createHumanReadableEventName(currentEventId),
 						score = eventScore,
 						cooldown = eventCooldown,

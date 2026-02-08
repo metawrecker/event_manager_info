@@ -22,7 +22,7 @@ jobs:
         id: vars
         run: |
           # You can customize this base name however you want:
-          BASE_NAME="mod_event_manager_info"
+          BASE_NAME="mod_event_info"
           TAG="${GITHUB_REF_NAME}"    # e.g. v1.2.3
           
           # Example custom filename: my-product-v1.2.3.zip
