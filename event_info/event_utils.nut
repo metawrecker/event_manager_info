@@ -370,6 +370,7 @@
 			::logInfo("Vanilla detected - factoring timings and cooldowns using the original TimeOfDay schedule");
 		}
 
+		local virtualTime = this.Time.getVirtualTimeF();
 		local eventManager = ::World.Events;
 
 		setEventTimeWorldMapTimeOffset();
@@ -400,7 +401,7 @@
 
 			local currentEventId = allEvents[i].getID();
 
-			if (allEvents[i].getScore() == 0 && allEvents[i].m.CooldownUntil > 0 && !allEvents[i].isSpecial()) {
+			if (allEvents[i].getScore() == 0 && allEvents[i].m.CooldownUntil > virtualTime && !allEvents[i].isSpecial()) {
 				local coolDownSeconds = getEventCooldownSecondsInWorldClockTime(allEvents[i]);
 				local cooldownUntil = coolDownSeconds / this.m.WorldSecondsPerDay;
 				local firedOn = cooldownUntil - (allEvents[i].m.Cooldown / this.m.WorldSecondsPerDay);
