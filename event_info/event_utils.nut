@@ -151,6 +151,8 @@
 			case "event.cultist_origin_flock":
 				return backgroundIconBasePath + "background_34.png";
 			case "event.deserter_origin_volunteer":
+			case "event.deserter_in_forest":
+			case "event.crisis.civilwar_deserter":
 				return backgroundIconBasePath + "background_07.png";
 			case "event.lone_wolf_origin_squire":
 				return backgroundIconBasePath + "background_03.png";
@@ -170,16 +172,12 @@
 				return backgroundIconBasePath + "background_31.png";
 			case "event.crisis.holywar_crucified_1":
 				return backgroundIconBasePath + "background_65.png";
-			case "event.crisis.civilwar_deserter":
-				return backgroundIconBasePath + "background_07.png";
 			case "event.master_no_use_apprentice":
 				return backgroundIconBasePath + "background_40.png";
 			case "event.barbarian_volunteer":
 				return backgroundIconBasePath + "background_58.png";
 			case "event.belly_dancer":
 				return backgroundIconBasePath + "background_64.png";
-			case "event.deserter_in_forest":
-				return backgroundIconBasePath + "background_07.png";
 			case "event.kings_guard_1":
 				return backgroundIconBasePath + "background_59.png";
 			case "event.thief_caught":
@@ -188,7 +186,6 @@
 			case "event.crisis.lindwurm_slayer":
 				return backgroundIconBasePath + "background_71.png";
 			case "event.cannon_execution":
-				return backgroundIconBasePath + "background_11.png";
 			case "event.melon_thief":
 				return backgroundIconBasePath + "background_11.png";
 			case "event.the_horseman":
@@ -203,6 +200,62 @@
 		}
 
 		return "ui/icons/round_information/round_number_icon.png";
+	}
+
+	function getBackgroundName(currentEventId)
+	{
+		switch (currentEventId) {
+			case "event.volunteers":
+			case "event.thief_caught":
+			case "event.runaway_laborers":
+				return "generate-bro-list"; //this dynamically creates a list of all the backgrounds the event can reward
+			case "event.anatomist_joins":
+			case "event.anatomist_helps_blighted_guy_1":
+				return "anatomist";
+			case "event.cultist_origin_flock":
+				return "cultist";
+			case "event.deserter_origin_volunteer":
+			case "event.crisis.civilwar_deserter":
+			case "event.deserter_in_forest":
+				return "deserter";
+			case "event.lone_wolf_origin_squire":
+				return "squire";
+			case "event.pirates":
+				return "fisherman";
+			case "event.oathtaker_joins":
+				return "paladin";
+			case "event.bastard_assassin":
+				return "assassin";
+			case "event.retired_gladiator":
+				return "gladiator";
+			case "event.fire_juggler":
+				return "juggler";
+			case "event.pimp_vs_harlot":
+				return "pimp";
+			case "event.imprisoned_wildman":
+				return "wildman";
+			case "event.crisis.holywar_crucified_1":
+				return "crucified";
+			case "event.master_no_use_apprentice":
+				return "apprentice";
+			case "event.barbarian_volunteer":
+				return "barbarian";
+			case "event.belly_dancer":
+				return "belly_dancer";
+			case "event.kings_guard_1":
+				return "kings_guard";
+			case "event.crisis.lindwurm_slayer":
+				return "lindwurm_slayer";
+			case "event.cannon_execution":
+			case "event.melon_thief":
+				return "thief";
+			case "event.the_horseman":
+				return "vagabond";
+			case "event.desert_well":
+				return "peddler";
+		}
+
+		return "NA";
 	}
 
 	function setEventTimeWorldMapTimeOffset()
@@ -237,7 +290,7 @@
 		local hours = 0;
 		local minutes = 0;
 		local seconds = 0;
-		//local formatString = "%.2f";
+		local formatString = "%.2f";
 		local eventTimeSeconds = 0;
 
 		// ::logInfo("************************************************************");
@@ -401,7 +454,12 @@
 
 			local currentEventId = allEvents[i].getID();
 
+			// ::logWarning("Event Name: " + createHumanReadableEventName(currentEventId));
+			// ::logInfo("Event cooldown setting: " + allEvents[i].m.Cooldown);
+			// ::logInfo("Event Score: " + allEvents[i].getScore());
+
 			if (allEvents[i].getScore() == 0 && allEvents[i].m.CooldownUntil > virtualTime && !allEvents[i].isSpecial()) {
+				//::logInfo("OG cooldown: " + allEvents[i].m.CooldownUntil);
 				local coolDownSeconds = getEventCooldownSecondsInWorldClockTime(allEvents[i]);
 				local cooldownUntil = coolDownSeconds / this.m.WorldSecondsPerDay;
 				local firedOn = cooldownUntil - (allEvents[i].m.Cooldown / this.m.WorldSecondsPerDay);
@@ -420,7 +478,8 @@
 						mayGiveBrother = eventMayGiveBrother(allEvents[i]),
 						onCooldownUntilDay = coolDownDisplay,
 						onCooldownUntilDayNumber = cooldownUntil,
-						icon = getEventIcon(currentEventId)
+						icon = getEventIcon(currentEventId),
+						background = getBackgroundName(currentEventId)
 					});
 			}
 
@@ -444,7 +503,8 @@
 						isBroEvent = eventIsBrotherEvent(currentEventId),
 						chanceForBrother = getChanceForBrother(currentEventId),
 						isCrisesEvent = isEventForACrises(currentEventId),
-						icon = getEventIcon(currentEventId)
+						icon = getEventIcon(currentEventId),
+						background = getBackgroundName(currentEventId)
 					};
 
 				if (eventMayGiveBrother(allEvents[i])) {

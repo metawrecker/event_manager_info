@@ -37,7 +37,8 @@ var EventInfoScreen = function (_parent)
 			mayGiveBrother = true/false,
 			chanceForBrother = 0,
 			isCrisesEvent = false,
-			icon = ""
+			icon = "",
+			background = ""
 		}],
 		NonBroHireEventsInPool = [{
 			id = "",
@@ -48,14 +49,16 @@ var EventInfoScreen = function (_parent)
 			mayGiveBrother = false,
 			chanceForBrother = 0,
 			isCrisesEvent = false,
-			icon = ""
+			icon = "",
+			background = ""
 		}],
 		EventsOnCooldown = [{
 			id = "",
 			name = "",
 			onCooldownUntilDay = 0,
 			firedOnDay = 0
-			mayGiveBrother = false
+			mayGiveBrother = false,
+			background = ""
 		}],
 		AllScores = 0,
 		NonEventBroHireScore = 0,
@@ -472,6 +475,8 @@ EventInfoScreen.prototype.createEventInPoolRow = function(_eventData)
     image.attr('src', Path.GFX + _eventData.icon);
 	iconField.append(image);
 
+	image.bindTooltip({contentType: 'msu-generic', modId: this.mModId, elementId: "EventPool.IconTooltip", eventId: _eventData.id, background: _eventData.background});
+
 	var eventName = _eventData.name;
 	var eventScore = 0;
 	var eventCooldown = 0;
@@ -518,6 +523,8 @@ EventInfoScreen.prototype.createEventOnCooldownRow = function(_eventData)
 	var image = $('<img class="emi-event-item-icon"/>');
     image.attr('src', Path.GFX + _eventData.icon);
 	iconField.append(image);
+
+	image.bindTooltip({contentType: 'msu-generic', modId: this.mModId, elementId: "EventPool.IconTooltip", eventId: _eventData.id, background: _eventData.background});
 
 	// if (_eventData.firedOnDay !== null && _eventData.firedOnDay >= 0) {
 	// 	firedOnDay = _eventData.firedOnDay.toFixed(2);

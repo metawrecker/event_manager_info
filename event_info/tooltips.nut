@@ -51,7 +51,39 @@
 		}),
 	},
 	EventPool = {
+		IconTooltip = ::MSU.Class.CustomTooltip(function(_data) {
+			if (_data == null || _data == "" || _data.background == "") {
+				::logError("EventInfo.IconTooltip expected a character background name but received nothing");
+				return;
+			}
 
+			if (_data.background == "NA") {
+				local ret = [];
+
+				ret.append({
+					id = 1,
+					type = "title",
+					text = "Non-bro Event"
+				});
+				ret.append({
+					id = 2,
+					type = "description",
+					text = "One of the many events that doesn't reward a brother."
+				});
+
+				return ret;
+			}
+
+			local tooltip = ::EventInfo.TooltipUtil.getTooltipForCharacterBackground(_data.eventId, _data.background);
+
+			// ::logInfo("Data received from getTooltipForCharacterBackground");
+
+			// foreach (value in tooltip) {
+			// 	::MSU.Log.printData(value);
+			// }
+
+			return tooltip;
+		}),
 	},
 	EventCooldown = {
 
