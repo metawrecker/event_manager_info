@@ -5,52 +5,17 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Set
-from collections import Counter
-
-class PatternTracker:
-    # """Tracks patterns found in event code for reporting"""
-    
-    def __init__(self):
-        self.method_calls = Counter()  # Track all method calls
-        self.comparisons = Counter()   # Track comparison patterns
-        self.member_accesses = Counter()  # Track property accesses
-        self.unhandled_patterns = []   # Patterns we don't handle
-        self.warnings = []  # Warnings about potentially missed logic
-        
-    def add_method_call(self, method: str):
-        # """Track a method call"""
-        self.method_calls[method] += 1
-    
-    def add_comparison(self, pattern: str):
-        # """Track a comparison pattern"""
-        self.comparisons[pattern] += 1
-    
-    def add_member_access(self, member: str):
-        # """Track a property access"""
-        self.member_accesses[member] += 1
-    
-    def add_unhandled(self, pattern: str, context: str = ""):
-        # """Track an unhandled pattern"""
-        self.unhandled_patterns.append({
-            'pattern': pattern,
-            'context': context
-        })
-    
-    def add_warning(self, message: str, line: str = "", event_id: str = ""):
-        # """Add a warning about potentially missed logic"""
-        self.warnings.append({
-            'message': message,
-            'line': line,
-            'event_id': event_id
-        })
 
 class EventAnalyzer:
-    def __init__(self, pattern_tracker: PatternTracker):
-        self.pattern_tracker = pattern_tracker
+    def __init__(self):
         self.reset()
 
     def reset(self):
+        self.content = ""
+
         self.data = {
+            'UnhandledLines': [],
+
             'EventID': None,
             'FileName': None,
             'RequiredDLC': None,
@@ -64,12 +29,17 @@ class EventAnalyzer:
             'TileRequirements': None,
             'BackgroundRequirements': [],
             'OriginRequirements': [],
+            'RequiredOrigins': [],
+            'ExcludedOrigins': [],
             'RequiredCrises': None,
+            'MinimumDays': None,
+            'MaximumDays': None,
+            'NumberOfEmptyInventorySlots': None
         }
         
         self.current_event_id = None
         self.iterates_through_roster = False
-       # self.storesCandidates = False
+        self.town_match = False
 
         self.dlc_map = {
             "Lindwurm": "Lindwurm",
@@ -79,7 +49,6 @@ class EventAnalyzer:
             "Paladins": "Of Flesh And Faith"
         }
 
-#if 'isHolyWar()' not in line and 'isCivilWar()' not in line and 'isGreenskinInvasion()' not in line and 'isUndeadScourge()' not in line:
         self.crises_map = {
             "isHolyWar": "Holy War",
             "isCivilWar": "Noble War",
@@ -88,7 +57,6 @@ class EventAnalyzer:
         }
 
     def analyze_directory(self, directory: str, output_file: str = 'event_requirements.nut'):
-        tracker = PatternTracker()
         results = []
         
         event_dir = Path(directory)
@@ -98,47 +66,26 @@ class EventAnalyzer:
         
         nut_files = list(event_dir.rglob('*.nut'))
         print(f"Found {len(nut_files)} .nut files")
+
+        analyzer = EventAnalyzer()
         
         for i, filepath in enumerate(nut_files, 1):
             if i % 50 == 0:
                 print(f"Processing {i}/{len(nut_files)}...")
             
-            analyzer = EventAnalyzer(tracker)
             result = analyzer.analyze_file(str(filepath))
             if result:
-                print(result)
+                #print(result)
                 results.append(result)
+
+        print(f"\nAnalyzed {len(results)} event files with requirements")
+
+        #print(results)
         
-        #print(f"\nAnalyzed {len(results)} event files with requirements")
-        
-        # Generate Squirrel file
-        #generate_squirrel_file(results, output_file)
-        #print(f"Generated {output_file}")
-        
-        # Generate analysis report
-        #report_file = output_file.replace('.nut', '_analysis_report.txt')
-        #generate_analysis_report(tracker, report_file)
-        #print(f"Generated {report_file}")
-        
-        # Print statistics
-        #print("\n=== STATISTICS ===")
-        # money_events = sum(1 for e in results if 'MinimumCrowns' in e or 'MaximumCrowns' in e)
-        # print(f"Events with money requirements: {money_events}")
-        
-        # roster_events = sum(1 for e in results if 'MinimumBrothers' in e or 'MaximumBrothers' in e)
-        # print(f"Events with roster requirements: {roster_events}")
-        
-        # background_events = sum(1 for e in results if 'RequiredBackgrounds' in e and len(e['RequiredBackgrounds']) > 0)
-        # print(f"Events with background requirements: {background_events}")
-        
-        print(f"\nUnique method calls found: {len(tracker.method_calls)}")
-        print(f"Unique comparisons found: {len(tracker.comparisons)}")
-        print(f"Total warnings: {len(tracker.warnings)}")
-        
-        #print(f"\n⚠️  CHECK {report_file} for unhandled patterns!")
+        generate_squirrel_file(results, output_file)
+        print(f"Generated {output_file}")
 
     def analyze_file(self, filepath: str) -> Optional[Dict[str, Any]]:
-        """Analyze a single event .nut file"""
         try:
             with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
@@ -146,55 +93,49 @@ class EventAnalyzer:
             print(f"Error reading {filepath}: {e}", file=sys.stderr)
             return None
         
-        # Check if this is an event file
-        if 'onUpdateScore' not in content:
+        if self.file_should_not_be_processed(content):
             return None
         
-        if self.event_is_a_special_event(content):
+        if self.file_is_for_a_special_event(content):
             return None
         
         # Reset for new file
         self.reset()
-        
-        # Extract metadata
+
         self.data['FileName'] = os.path.basename(filepath)
         self.data['EventID'] = self.extract_event_id(content)
         self.current_event_id = self.data['EventID']
 
-        # Extract and analyze onUpdateScore function
         on_update_score = self.extract_function(content, 'onUpdateScore')
         if not on_update_score:
             return None
         
-        # Analyze the function
+        self.content = on_update_score
+
         self.analyze_function(on_update_score)
 
-        #print(self.data)
-        
-        # Store warnings from this event
-        # if self.data['_Warnings']:
-        #     for warning in self.data['_Warnings']:
-        #         self.pattern_tracker.add_warning(
-        #             warning['message'],
-        #             warning.get('line', ''),
-        #             self.current_event_id
-        #         )
-        
-        #Clean up - remove None values and internal tracking
+        #Clean up - remove None values
         result = {}
         for k, v in self.data.items():
-            if k.startswith('_'):
-                continue  # Skip internal tracking fields
-            if v is not None and v != [] and v != False:
+            if v is not None and v != []:
                 result[k] = v
+
+        # if 'EventID' not in result:
+        #     result['EventID'] = self.data['EventID']
+        # if 'FileName' not in result:
+        #     result['FileName'] = self.data['FileName']
         
-        # Always include EventID and FileName
-        if 'EventID' not in result:
-            result['EventID'] = self.data['EventID']
-        if 'FileName' not in result:
-            result['FileName'] = self.data['FileName']
-        
-        return result if len(result) > 2 else None
+        return result if len(result) > 1 else None
+    
+    def file_should_not_be_processed(self, content: str) -> bool:
+        if 'onUpdateScore' not in content:
+            return True
+        return False
+
+    def file_is_for_a_special_event(self, content: str) -> bool:
+        if 'this.m.IsSpecial = true;' in content:
+            return True
+        return False
     
     def extract_event_id(self, content: str) -> str:
         match = re.search(r'this\.m\.ID\s*=\s*"([^"]+)"', content)
@@ -203,11 +144,6 @@ class EventAnalyzer:
             return match.group(1)
         
         return "unknown"
-    
-    def event_is_a_special_event(self, content: str) -> bool:
-        if 'this.m.IsSpecial = true;' in content:
-            return True
-        return False
     
     def extract_function(self, content: str, func_name: str) -> Optional[str]:
         pattern = rf'function\s+{func_name}\s*\([^)]*\)\s*{{'
@@ -229,58 +165,76 @@ class EventAnalyzer:
         
         return None
     
+    def get_if_block_contents(self, if_line) -> Optional[str]:
+        if not self.content:
+            print("onUpdateScore() function not found")
+            return None
+        
+        lines = self.content.split('\n')
+        
+        # Find the index of the if statement line
+        if_index = None
+        for i, line in enumerate(lines):
+            if if_line in line.strip():
+                if_index = i
+                break
+        
+        if if_index is None:
+            print("if_index is None")
+            return None
+
+        # Find the opening brace
+        brace_index = None
+        for i in range(if_index, len(lines)):
+            if '{' in lines[i]:
+                brace_index = i
+                break
+
+        if brace_index is None:
+            print("brace_index is None")
+            return None
+
+        # Collect lines until closing brace
+        contents = []
+        for i in range(brace_index + 1, len(lines)):
+            if '}' in lines[i]:
+                break
+            contents.append(lines[i].strip())
+
+        return '\n'.join(contents)
+    
     def analyze_function(self, func_body: str):
         lines = func_body.split('\n')
-        
-        #in_settlement_block = False
         
         for i, line in enumerate(lines):
             line = line.strip()
 
             if not self._line_should_be_evaluated(line):
                 continue
-
-            # print(line)
-            
-            # Track all method calls and property accesses for reporting
-            # self._track_patterns(line)
-            
-            # Check for settlement block markers
-            # if 'nearTown' in line or 'getSettlements' in line:
-            #     in_settlement_block = True
-            
-            # Analyze with existing handlers
-            handled = False
-
             if self._line_is_for_DLC_check(line):
                 continue
-
             if self._line_is_for_time_of_day_check(line):
                 continue
-        
             if self._line_is_for_open_roster_check(line):
                 continue
-
             if self._line_is_for_money_check(line):
                 continue
-
             if self._line_is_for_tile_check(line):
                 continue
-
             if self._line_is_for_brother_background_check(line):
                 continue
-
             if self._line_is_for_origin_check(line):
                 continue
-
             if self._line_is_for_crises_event(line):
                 continue
+            if self._line_is_for_day_check(line):
+                continue
+            if self._line_is_for_inventory_check(line):
+                continue
 
-            # # Check for potentially unhandled logic
-            # self._check_for_unhandled_logic(line, handled)
+            self.data['UnhandledLines'].append(line)
 
-            if not handled:
-                print(line)
+            print(line)
 
     def _line_should_be_evaluated(self, line: str) -> bool:
         if not line:
@@ -405,54 +359,66 @@ class EventAnalyzer:
         
         return False
     
-    		# 	if (t.isSouthern() && t.getTile().getDistanceTo(currentTile) <= 4 && t.isAlliedWithPlayer())
-			# {
-			# 	this.m.Town = t;
-			# 	break;
-			# }
-    
     def _line_is_for_tile_check(self, line: str) -> bool:
-        matchedLocation = False
+        matched_location = False
         tileDetails = {}
 
         if 'isSouthern()' in line:
             self.data['SettlementType'] = "Southern"
-            matchedLocation = True
+            matched_location = True
+
+        if 't.hasSituation("situation.arena_tournament"' in line:
+            print("NEED TO HANDLE t.hasSituation('situation.arena_tournament')")
 
         if 'getTile().getDistanceTo' in line:
             match = re.search(r'getDistanceTo.*?([<>=!]+)\s*(\d+)', line)
 
             if match:
-                matchedLocation = True
+                matched_location = True
                 operator = match.group(1)
                 distance = int(match.group(2))
 
-                if '>=' in operator:
-                    self.data['MinDistanceFromSettlement'] = distance
-                elif '<=' in operator:
-                    self.data['MaxDistanceFromSettlement'] = distance
-                elif '>' in operator:
-                    self.data['MinDistanceFromSettlement'] = distance + 1
-                elif '<' in operator:
-                    self.data['MaxDistanceFromSettlement'] = distance + 1
+                if_statement_contents = self.get_if_block_contents(line)
+
+                if if_statement_contents is None:
+                    matched_location = False
+                else:
+                    if 'return' in if_statement_contents:
+                        if '>=' in operator:
+                            self.data['MaxDistanceFromSettlement'] = distance + 1
+                        elif '<=' in operator:
+                            self.data['MinDistanceFromSettlement'] = distance + 1
+                        elif '>' in operator:
+                            self.data['MaxDistanceFromSettlement'] = distance
+                        elif '<' in operator:
+                            self.data['MinDistanceFromSettlement'] = distance
+                    if 'break;' in if_statement_contents:
+                        if '>=' in operator:
+                            self.data['MinDistanceFromSettlement'] = distance
+                        elif '<=' in operator:
+                            self.data['MaxDistanceFromSettlement'] = distance
+                        elif '>' in operator:
+                            self.data['MinDistanceFromSettlement'] = distance + 1
+                        elif '<' in operator:
+                            self.data['MaxDistanceFromSettlement'] = distance + 1
 
         # MustNotBeHostile is almost always going to be true, only evaluate for false
         if '!isAlliedWithPlayer()' in line:
-            matchedLocation = True
+            matched_location = True
             self.data['SettlementMustNotBeHostile'] = False
 
         if '!currentTile.HasRoad' in line or '!currentTile.HasRoad' in line:
-            matchedLocation = True
+            matched_location = True
             tileDetails["Road"] = "OnRoad"
         elif 'currentTile.HasRoad' in line or 'currentTile.HasRoad' in line:
-            matchedLocation = True
+            matched_location = True
             tileDetails["Road"] = "OffRoad"
 
         if 'currentTile.Type' in line:
             match = re.search(r'([\w.]+)\s*(==|!=)\s*this\.Const\.World\.TerrainType\.(\w+)', line)
 
             if match:
-                matchedLocation = True
+                matched_location = True
                 operator = match.group(2)
                 terrainType = match.group(3)
 
@@ -463,13 +429,31 @@ class EventAnalyzer:
             match = re.search(r'([\w.]+)\s*(==|!=)\s*this\.Const\.World\.TerrainTacticalType\.(\w+)', line)
 
             if match:
-                matchedLocation = True
+                matched_location = True
                 operator = match.group(2)
-                tacticalType = match.group(3)
+                tactical_type = match.group(3)
 
                 if '!=' in operator:
-                    tileDetails["TacticalType"] = tacticalType
+                    tileDetails["TacticalType"] = tactical_type
 
+        # currentTile.SquareCoords.Y > this.World.getMapSize().Y * 0.7
+        if "SquareCoords" in line and "getMapSize()" in line:
+            match = re.search(r'([<>=!]+)\s*this\.World\.getMapSize\(\)\.Y\s*\*\s*(\d+\.\d+)', line)
+
+            if match:
+                matched_location = True
+                operator = match.group(1)
+                y_value = float(match.group(2))
+                y_percent = int(y_value * 100)
+
+                if ">=" in operator:
+                    tileDetails["OnOrBelowYLine"] = y_percent
+                elif "<=" in operator:
+                    tileDetails["OnOrAboveYLine"] = y_percent
+                elif ">" in operator:
+                    tileDetails["BelowYLine"] = y_percent
+                elif "<" in operator:
+                    tileDetails["AboveYLine"] = y_percent
 
         if tileDetails:
             if self.data['TileRequirements'] is not None:
@@ -477,7 +461,7 @@ class EventAnalyzer:
             else:
                 self.data['TileRequirements'] = tileDetails
 
-        return matchedLocation
+        return matched_location
     
     def _line_is_for_brother_background_check(self, line: str) -> bool:
         if 'getBackground().getID()' not in line:
@@ -569,7 +553,12 @@ class EventAnalyzer:
                 origin_str = match[1]
 
                 origin = origin_str.replace('origin.', '')
-                self.data['OriginRequirements'].append({"origin": origin, "operator": operator})
+
+                if "==" in operator:
+                    self.data['ExcludedOrigins'].append(origin)
+                elif "!=" in operator:
+                    self.data['RequiredOrigins'].append(origin)
+                #self.data['OriginRequirements'].append({"origin": origin, "operator": operator})
 
             return True
         return False
@@ -600,6 +589,116 @@ class EventAnalyzer:
             return False
 
         return False
+    
+    def _line_is_for_day_check(self, line: str) -> bool:
+        if 'getTime()' not in line: 
+            return False
+        
+        match = re.search(r'getTime\(\)\.Days\s*([<>=!]+)\s*(\d+)', line)
+        
+        #this.World.getTime().Days > 10
+        if match:
+            operator = match.group(1)
+            days = int(match.group(2))
+
+            if '<' in operator:
+                self.data['MinimumDays'] = days + 1
+            elif '<=' in operator:
+                self.data['MinimumDays'] = days
+            elif '>' in operator:
+                self.data['MaximumDays'] = days + 1
+            elif '>=' in operator:
+                self.data['MaximumDays'] = days
+        
+            return True
+
+        return False
+    
+    def _line_is_for_inventory_check(self, line: str) -> bool:
+        if 'getStash()' not in line: 
+            return False
+
+        #'if (!this.World.Assets.getStash().hasEmptySlot())'
+        match = re.search(r'if\s*\(\s*(!?)\s*this\.World\.Assets\.getStash\(\)\.hasEmptySlot\(\)\)', line)
+
+        if match:
+            if '!' in match.group(1):
+                self.data['NumberOfEmptyInventorySlots'] = 1
+
+            return True
+        
+        #"if (this.World.Assets.getStash().getNumberOfEmptySlots() < 1)"
+        match = re.search(r'getStash\(\)\.getNumberOfEmptySlots\(\)\s*([<>=!]+)\s*(\d+)', line)
+        
+        if match:
+            operator = match.group(1)
+            slots = int(match.group(2))
+
+            if '<' in operator or '<=' in operator:
+                self.data['NumberOfEmptyInventorySlots'] = slots
+            elif '>' in operator:
+                self.data['NumberOfEmptyInventorySlots'] = slots + 1
+            elif '>=' in operator:
+                self.data['NumberOfEmptyInventorySlots'] = slots
+        
+            return True
+        
+        return False
+
+
+def generate_squirrel_file(events: List[Dict[str, Any]], output_file: str):
+    lines = [
+        "// Battle Brothers Event Requirements Database",
+        f"// Total events: {len(events)}",
+        "",
+        "this.EventRequirements <- [",
+    ]
+    
+    for i, event in enumerate(events):
+        lines.append("    {")
+        
+        for key, value in sorted(event.items()):
+            squirrel_value = convert_python_to_squirrel(value)
+            lines.append(f"        {key} = {squirrel_value},")
+        
+        if i < len(events) - 1:
+            lines.append("    },")
+        else:
+            lines.append("    }")
+        
+        #lines.append("")
+    
+    lines.append("];")
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(lines))
+
+def convert_python_to_squirrel(value):
+    if value is None:
+        return "null"
+    elif isinstance(value, bool):
+        return "true" if value else "false"
+    elif isinstance(value, int):
+        return str(value)
+    elif isinstance(value, float):
+        return str(value)
+    elif isinstance(value, str):
+        escaped = value.replace('\\', '\\\\').replace('"', '\\"')
+        return f'"{escaped}"'
+    elif isinstance(value, dict):
+        if not value:
+            return "{}"
+        items = []
+        for k, v in value.items():
+            squirrel_val = convert_python_to_squirrel(v)
+            items.append(f"{k} = {squirrel_val}")
+        return "{ " + ", ".join(items) + " }"
+    elif isinstance(value, list):
+        if not value:
+            return "[]"
+        items = [convert_python_to_squirrel(item) for item in value]
+        return "[" + ", ".join(items) + "]"
+    return "null"
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -609,6 +708,6 @@ if __name__ == '__main__':
     events_dir = sys.argv[1]
     output_file = sys.argv[2] if len(sys.argv) > 2 else 'event_requirements.nut'
     
-    tracker = PatternTracker()
-    analyzer = EventAnalyzer(tracker)
+    #tracker = PatternTracker()
+    analyzer = EventAnalyzer()
     analyzer.analyze_directory(events_dir, output_file)
