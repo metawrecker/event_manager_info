@@ -18,8 +18,7 @@ On Cooldown
 - There are NO code changes to how vanilla's event system works. This is an 'info only' mod.
 
 ### How does it work?
-- Press Ctrl+e to open the events popup window. You can change this keybind in the Mod Settings folder.
--    You can change this keybind in the MSU Mod Settings.
+- Press Ctrl+e to open the events popup window. Press Ctrl+e or Esc to close the window. You can change these keybinds in the Mod Settings folder.
 - Explore the MSU Mod Settings menu for settings that impact the filters and crises event masking.
 
 ![20260225150707_1](https://github.com/user-attachments/assets/5f540cf7-083f-4799-be72-c662d76cfd1f)
