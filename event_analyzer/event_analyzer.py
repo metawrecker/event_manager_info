@@ -18,7 +18,7 @@ class EventAnalyzer:
 
             'EventID': None,
             'FileName': None,
-            'RequiredDLC': None,
+            'RequiredDLC': [],
             'TimeOfDay': None,
             'MustHaveOpenRosterSpace': None,
             'MininumCrowns': None,
@@ -32,9 +32,11 @@ class EventAnalyzer:
             'RequiredOrigins': [],
             'ExcludedOrigins': [],
             'RequiredCrises': None,
+            'RequiredCrisesStatus': None,
             'MinimumDays': None,
             'MaximumDays': None,
-            'NumberOfEmptyInventorySlots': None
+            'NumberOfEmptyInventorySlots': None,
+            'PlayerCharacterExcluded': None
         }
         
         self.current_event_id = None
@@ -54,6 +56,13 @@ class EventAnalyzer:
             "isCivilWar": "Noble War",
             "isGreenskinInvasion": "Greenskin Invasion",
             "isUndeadScourge": "Undead Invasion"
+        }
+
+        self.greater_evil_map = {
+            "HolyWar": "Holy War",
+            "CivilWar": "Noble War",
+            "Greenskins": "Greenskin Invasion",
+            "Undead": "Undead Invasion"
         }
 
     def analyze_directory(self, directory: str, output_file: str = 'event_requirements.nut'):
@@ -165,10 +174,10 @@ class EventAnalyzer:
         
         return None
     
-    def get_if_block_contents(self, if_line) -> Optional[str]:
+    def get_if_block_contents(self, if_line) -> str:
         if not self.content:
             print("onUpdateScore() function not found")
-            return None
+            return ""
         
         lines = self.content.split('\n')
         
@@ -181,7 +190,7 @@ class EventAnalyzer:
         
         if if_index is None:
             print("if_index is None")
-            return None
+            return ""
 
         # Find the opening brace
         brace_index = None
@@ -192,7 +201,7 @@ class EventAnalyzer:
 
         if brace_index is None:
             print("brace_index is None")
-            return None
+            return ""
 
         # Collect lines until closing brace
         contents = []
@@ -230,6 +239,8 @@ class EventAnalyzer:
             if self._line_is_for_day_check(line):
                 continue
             if self._line_is_for_inventory_check(line):
+                continue
+            if self._line_is_for_player_check(line):
                 continue
 
             self.data['UnhandledLines'].append(line)
@@ -277,15 +288,16 @@ class EventAnalyzer:
         if 'Const.DLC' not in line:
             return False
         
-        match = re.search(r'if\s*\(\s*(!?)\s*this\.Const\.DLC\.(\w+)\s*\)', line)
+        matches = re.findall(r'(!?)\s*this\.Const\.DLC\.(\w+)', line)
 
-        if match:
-            boolCheck = match.group(1)
-            dlc = match.group(2)
+        if matches:
+            for match in matches:
+                boolCheck = match[0]
+                dlc = match[1]
 
-            # if (!this.Const.DLC.Desert) .. return false .. no event score
-            if boolCheck == "!":
-                self.data["RequiredDLC"] = self.dlc_map[dlc]
+                # if (!this.Const.DLC.Desert) .. return false .. no event score
+                if boolCheck == "!":
+                    self.data["RequiredDLC"].append(self.dlc_map[dlc])
 
             return True
 
@@ -369,6 +381,7 @@ class EventAnalyzer:
 
         if 't.hasSituation("situation.arena_tournament"' in line:
             print("NEED TO HANDLE t.hasSituation('situation.arena_tournament')")
+            self.data['UnhandledLines'].append("t.hasSituation('situation.arena_tournament')")
 
         if 'getTile().getDistanceTo' in line:
             match = re.search(r'getDistanceTo.*?([<>=!]+)\s*(\d+)', line)
@@ -548,7 +561,6 @@ class EventAnalyzer:
 
         if matches:
             for match in matches:
-                #print(match)
                 operator = match[0]
                 origin_str = match[1]
 
@@ -558,7 +570,6 @@ class EventAnalyzer:
                     self.data['ExcludedOrigins'].append(origin)
                 elif "!=" in operator:
                     self.data['RequiredOrigins'].append(origin)
-                #self.data['OriginRequirements'].append({"origin": origin, "operator": operator})
 
             return True
         return False
@@ -583,10 +594,31 @@ class EventAnalyzer:
                 return True
             
         else:
-            # build out the logic for 
-            # if (this.World.FactionManager.getGreaterEvilType() == this.Const.World.GreaterEvilType.HolyWar 
-            # && this.World.FactionManager.getGreaterEvilPhase() == this.Const.World.GreaterEvilPhase.Warning)
-            return False
+            matched_line = False
+
+            if 'getGreaterEvilType()' in line:
+                match = re.search(r'(==|!=)\s*this\.Const\.World\.GreaterEvilType\.(\w+)', line)
+
+                if match:
+                    matched_line = True
+                    operator = match.group(1)
+                    greater_evil_type = match.group(2)
+
+                    if '==' in operator:
+                        self.data["RequiredCrises"] = self.greater_evil_map[greater_evil_type]
+
+            if 'getGreaterEvilPhase()' in line:
+                match = re.search(r'(==|!=)\s*this\.Const\.World\.GreaterEvilPhase\.(\w+)', line)
+
+                if match:
+                    matched_line = True
+                    operator = match.group(1)
+                    greater_evil_phase = match.group(2)
+
+                    if '==' in operator:
+                        self.data["RequiredCrisesStatus"] = greater_evil_phase
+
+            return matched_line
 
         return False
     
@@ -645,6 +677,18 @@ class EventAnalyzer:
         
         return False
 
+    def _line_is_for_player_check(self, line: str) -> bool:
+        if 'asSkill("trait.player")' not in line:
+            return False
+        
+        if_statement = self.get_if_block_contents(line)
+
+        if 'continue' in if_statement:
+            self.data['PlayerCharacterExcluded'] = True
+            return True
+
+        return False
+    
 
 def generate_squirrel_file(events: List[Dict[str, Any]], output_file: str):
     lines = [
