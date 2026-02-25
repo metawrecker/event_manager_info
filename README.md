@@ -1,7 +1,4 @@
 ## Event Info
-
-![20260225150640_1](https://github.com/user-attachments/assets/07a6e899-0dbc-436a-b8eb-2adb202b6124)
-
 I created this Battle Brothers mod because the entire event system in the game is a black box. Someone did add events to the Battle Brothers Fandom wiki but the searching method is cumbersome and it's a large undertaking to try to figure out what events you qualify for at any given time of your run. 
 - This mod was written with a special focus on Event Brother events; namely events that may reward a brother to your company. But, if you are trying to qualify for a different event, you can use this mod for that purpose as well.
 - This mod uses the in-game Event Manager, so the events available and the events on cooldown are the exact values stored in the Event Manager.
@@ -9,6 +6,8 @@ I created this Battle Brothers mod because the entire event system in the game i
 ## Features
 Event Pool
 -    All events that you currently qualify for will appear here. Brother and Dog events get fun extra icons.
+
+![20260225150640_1](https://github.com/user-attachments/assets/07a6e899-0dbc-436a-b8eb-2adb202b6124)
 
 On Cooldown
 -    All events that are on cooldown, sorted from smallest to largest "Fired On Day" value.
