@@ -8,7 +8,11 @@ I created this Battle Brothers mod because the entire event system in the game i
 
 ## Features
 - Event Pool
--  All events that you currently qualify for
+-  All events that you currently qualify for will appear here. Brother and Dog events get fun extra icons.
+- On Cooldown
+-  All events that are on cooldown, sorted from smallest to largest "Fired On Day" value.
+
+![20260225150653_1](https://github.com/user-attachments/assets/8befda97-9a8a-4ea6-b640-5faba6bd43e9)
 
 ### Does this mod change vanilla behavior?
 - There are NO code changes to how vanilla's event system works. This is an 'info only' mod.
@@ -17,6 +21,8 @@ I created this Battle Brothers mod because the entire event system in the game i
 * Press Ctrl+e to open the events popup window. You can change this keybind in the Mod Settings folder.
 *  You can change this keybind in the MSU Mod Settings.
 - Explore the MSU Mod Settings menu for settings that impact the filters and crises event masking.
+
+![20260225150707_1](https://github.com/user-attachments/assets/5f540cf7-083f-4799-be72-c662d76cfd1f)
 
 ### Pre-requisites
 - Modding Standards & Utilities 1.3.0 and higher
