@@ -9,6 +9,7 @@ I created this Battle Brothers mod because the entire event system in the game i
 ## Features
 Event Pool
 -    All events that you currently qualify for will appear here. Brother and Dog events get fun extra icons.
+
 On Cooldown
 -    All events that are on cooldown, sorted from smallest to largest "Fired On Day" value.
 
