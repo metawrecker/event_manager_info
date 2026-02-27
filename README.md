@@ -3,7 +3,7 @@ I created this Battle Brothers mod because the entire event system in the game i
 - This mod was written with a special focus on Event Brother events; namely events that may reward a brother to your company. But, if you are trying to qualify for a different event, you can use this mod for that purpose as well.
 - This mod uses the in-game Event Manager, so the events available and the events on cooldown are the exact values stored in the Event Manager.
 
-## How does it it work?
+### How does it it work?
 
 - Behind the scenes, there is an Event Manager that tracks all of the 400 or so in-game events.
 - Every 3-4 in-game days (on average), an event will 'fire' or appear on screen.
