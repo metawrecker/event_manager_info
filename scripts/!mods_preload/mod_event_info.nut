@@ -2,7 +2,8 @@
 	ID = "mod_event_info",
 	Name = "Event Info",
 	Version = "0.9.9",
-	GitHubUrl = "https://github.com/metawrecker/event_info"
+	GitHubUrl = "https://github.com/metawrecker/event_info",
+	NexusUrl = "https://www.nexusmods.com/battlebrothers/mods/963"
 }
 
 /*
@@ -29,8 +30,7 @@
 local requiredMods = [
 	"vanilla >= 1.5.1-6",
 	"mod_msu >= 1.3.0",
-	"mod_modern_hooks >= 0.4.10",
-	"mod_hooks >= 21.0.0"
+	"mod_modern_hooks >= 0.4.10"
 ];
 
 local modLoadOrder = [];
@@ -46,6 +46,7 @@ foreach (mod in requiredMods) {
  	local mod = ::MSU.Class.Mod(::EventInfo.ID, ::EventInfo.Version, ::EventInfo.Name);
 	::EventInfo.Mod <- mod;
 
+	::EventInfo.Mod.Registry.addModSource(::MSU.System.Registry.ModSourceDomain.NexusMods, ::EventInfo.NexusUrl);
 	::EventInfo.Mod.Registry.addModSource(::MSU.System.Registry.ModSourceDomain.GitHub, ::EventInfo.GitHubUrl);
 	::EventInfo.Mod.Registry.setUpdateSource(::MSU.System.Registry.ModSourceDomain.GitHub);
 

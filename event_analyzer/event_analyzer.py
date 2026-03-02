@@ -3,6 +3,7 @@
 import re
 import os
 import sys
+import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Set
 
@@ -21,10 +22,13 @@ class EventAnalyzer:
             'RequiredDLC': [],
             'TimeOfDay': None,
             'MustHaveOpenRosterSpace': None,
+            'MinimumBrotherCount': None,
+            'MaximumBrotherCount': None,
             'MininumCrowns': None,
             'MinDistanceFromSettlement': None,
             'MaxDistanceFromSettlement': None,
             'SettlementType': None, #Southern, Northern T1-T2-T3-Military-NonMilitary
+            'SettlementSituation': None,
             'SettlementMustNotBeHostile': None,
             'TileRequirements': None,
             'BackgroundRequirements': [],
@@ -36,12 +40,19 @@ class EventAnalyzer:
             'MinimumDays': None,
             'MaximumDays': None,
             'NumberOfEmptyInventorySlots': None,
-            'PlayerCharacterExcluded': None
+            'PlayerCharacterExcluded': None,
+            'ExcludedItems': [],
+            'RequiredItems': [],
+            'ExcludedFlags': [],
+            'RequiredFlags': [],
+            'SpecialConsiderations': [],
+            'RequiredRetinue': []
         }
         
         self.current_event_id = None
-        self.iterates_through_roster = False
-        self.town_match = False
+        #self.iterates_through_roster = False
+        self.location_check_variable = ""
+        self.item_check_variable = ""
 
         self.dlc_map = {
             "Lindwurm": "Lindwurm",
@@ -63,6 +74,18 @@ class EventAnalyzer:
             "CivilWar": "Noble War",
             "Greenskins": "Greenskin Invasion",
             "Undead": "Undead Invasion"
+        }
+
+        self.map_items = {
+            "misc.black_book": "The Black Book"
+        }
+
+        self.flag_map = {
+            "IsLorekeeperDefeated": "Lorekeeper is defeated"
+        }
+
+        self.retinue_map = {
+            "follower.scout": "Scout"
         }
 
     def analyze_directory(self, directory: str, output_file: str = 'event_requirements.nut'):
@@ -91,6 +114,7 @@ class EventAnalyzer:
 
         #print(results)
         
+        generate_json_file(results, 'event_info/event_requirements.json')
         generate_squirrel_file(results, output_file)
         print(f"Generated {output_file}")
 
@@ -218,34 +242,63 @@ class EventAnalyzer:
         for i, line in enumerate(lines):
             line = line.strip()
 
+            handled = False
+
             if not self._line_should_be_evaluated(line):
                 continue
-            if self._line_is_for_DLC_check(line):
-                continue
-            if self._line_is_for_time_of_day_check(line):
-                continue
-            if self._line_is_for_open_roster_check(line):
-                continue
-            if self._line_is_for_money_check(line):
-                continue
-            if self._line_is_for_tile_check(line):
-                continue
-            if self._line_is_for_brother_background_check(line):
-                continue
-            if self._line_is_for_origin_check(line):
-                continue
-            if self._line_is_for_crises_event(line):
-                continue
-            if self._line_is_for_day_check(line):
-                continue
-            if self._line_is_for_inventory_check(line):
-                continue
-            if self._line_is_for_player_check(line):
+            
+            if self._line_is_for_specific_event_override(line):
                 continue
 
-            self.data['UnhandledLines'].append(line)
+            handled = self._line_is_for_DLC_check(line) or handled
+            handled = self._line_is_for_time_of_day_check(line) or handled
+            handled = self._line_is_for_open_roster_check(line) or handled
+            handled = self._line_is_for_money_check(line) or handled
+            handled = self._line_is_for_tile_check(line) or handled
+            handled = self._line_is_for_brother_background_check(line) or handled
+            handled = self._line_is_for_origin_check(line) or handled
+            handled = self._line_is_for_crises_event(line) or handled
+            handled = self._line_is_for_day_check(line) or handled
+            handled = self._line_is_for_inventory_check(line) or handled
+            handled = self._line_is_for_player_check(line) or handled 
+            handled = self._line_is_for_item_check(line) or handled
+            handled = self._line_is_for_flags_check(line) or handled
+            handled = self._line_is_for_retinue_check(line) or handled
 
-            print(line)
+            # if not self._line_should_be_evaluated(line):
+            #     continue
+            # if self._line_is_for_specific_event_override(line):
+            #     continue
+            # if self._line_is_for_DLC_check(line):
+            #     continue
+            # if self._line_is_for_time_of_day_check(line):
+            #     continue
+            # if self._line_is_for_open_roster_check(line):
+            #     continue
+            # if self._line_is_for_money_check(line):
+            #     continue
+            # if self._line_is_for_tile_check(line):
+            #     continue
+            # if self._line_is_for_brother_background_check(line):
+            #     continue
+            # if self._line_is_for_origin_check(line):
+            #     continue
+            # if self._line_is_for_crises_event(line):
+            #     continue
+            # if self._line_is_for_day_check(line):
+            #     continue
+            # if self._line_is_for_inventory_check(line):
+            #     continue
+            # if self._line_is_for_player_check(line):
+            #     continue
+            # if self._line_is_for_item_check(line):
+            #     continue
+            # if self._line_is_for_flags_check(line):
+            #     continue
+
+            if not handled:
+                self.data['UnhandledLines'].append(line)
+                print(line)
 
     def _line_should_be_evaluated(self, line: str) -> bool:
         if not line:
@@ -257,9 +310,9 @@ class EventAnalyzer:
         if len(line) < 4:
             return False
         
-        if 'this.World.getPlayerRoster().getAll()' in line:
-            self.iterates_through_roster = True
-            return False
+        # if 'this.World.getPlayerRoster().getAll()' in line:
+        #     self.iterates_through_roster = True
+        #     return False
         
         # if 'local candidates = [];' in line:
         #     # set flag...
@@ -284,6 +337,44 @@ class EventAnalyzer:
     
         return True
     
+    def _line_is_for_specific_event_override(self, line: str) -> bool:
+
+        if self.current_event_id == "event.trade_black_book":
+            if '(this.World.Assets.getOrigin().getID() != "scenario.militia")' in line:
+                self.data['SpecialConsiderations'].append("The Peasant Militia origin qualifies without having to read the black book.")
+                #self.data['SpecialConsiderations'].append("All other origins must complete the Read Black Book event and must have the Mad brother in the roster.")
+                return True
+            
+            # if 'bro.getSkills().hasSkill("trait.mad")' in line:
+            #     return True
+            
+            # if 'candidates_mad.len() == 0' in line:
+            #     return True
+
+        if self.current_event_id == "event.sword_eater":
+            if 'if (this.Const.DLC.Wildmen && !this.World.Flags.get("IsSwordEaterWildmanDone") && bro.getBackground().getID() == "background.wildman")' in line:
+                self.data['SpecialConsiderations'].append("Warriors of the North DLC & a Wildman in the roster can unlock a special Wildman interaction 1 time.")
+                return True
+            
+            if 'if (bro.getSkills().hasSkill("trait.player"))' in line:
+                return True
+            
+            if 'if (candidates_wildman.len() != 0)' in line:
+                return True
+            
+        if self.current_event_id == "event.arena_tournament" and 'if (town == null)' in line:
+            return True
+        
+        if self.current_event_id == "event.cultural_conflagration":
+            if "if (bro.getEthnicity() == 0)" in line:
+                self.data['SpecialConsiderations'].append("Must have at least 1 southern and 1 northern ethnicity bros.")
+                return True
+            
+            if "if (northern <= 1 || southern <= 1)" in line:
+                return True
+
+        return False
+
     def _line_is_for_DLC_check(self, line: str) -> bool:
         if 'Const.DLC' not in line:
             return False
@@ -323,13 +414,30 @@ class EventAnalyzer:
         return False
     
     def _line_is_for_open_roster_check(self, line: str) -> bool:
-        if 'getPlayerRoster().getSize()' not in line:
+        if 'getPlayerRoster().getSize()' not in line and 'brothers.len()' not in line:
             return False
         
-        match = re.search(r'(>=|<=|>|<|==|!=)', line)
+        print("_line_is_for_open_roster_check", line)
+
+        match = re.search(r'len\(\)\s(<|>|=|<=|=>)\s(\d+)', line)
         if match:
             operator = match.group(1)
-            # size = int(match.group(2))
+            number = int(match.group(2))
+
+            if '>=' in operator:
+                self.data['MaximumBrotherCount'] = number + 1
+            elif "<=" in operator:
+                self.data['MinimumBrotherCount'] = number + 1
+            elif '>' in operator:
+                self.data['MaximumBrotherCount'] = number
+            elif '<' in operator:
+                self.data['MinimumBrotherCount'] = number
+            
+            return True
+        
+        match = re.search(r'this\.World\.getPlayerRoster\(\)\.getSize\(\)\s(>=|<=|>|<|==|!=)\sthis\.World\.Assets\.getBrothersMax\(\)', line)
+        if match:
+            operator = match.group(1)
 
             if '>=' in operator:
                 self.data['MustHaveOpenRosterSpace'] = True
@@ -346,13 +454,11 @@ class EventAnalyzer:
             #     self.data['MaximumBrothers'] = size
             # return True
 
+        
+
         return False
     
-    	# 	if (this.World.Assets.getMoney() < 750)
-		# {
-		# 	return;
-		# }
-    
+    # 	if (this.World.Assets.getMoney() < 750)    
     def _line_is_for_money_check(self, line: str) -> bool:
         if 'getMoney()' not in line:
             return False
@@ -379,9 +485,21 @@ class EventAnalyzer:
             self.data['SettlementType'] = "Southern"
             matched_location = True
 
+        if '!t.isSouthern()' in line:
+            self.data['SettlementType'] = "Northern"
+            matched_location = True
+
+        if 'isMilitary()' in line:
+            self.data['SettlementType'] = "Military"
+            matched_location = True
+
+        if 'isMilitary()' in line:
+            self.data['SettlementType'] = "Non-Military"
+            matched_location = True
+
         if 't.hasSituation("situation.arena_tournament"' in line:
-            print("NEED TO HANDLE t.hasSituation('situation.arena_tournament')")
-            self.data['UnhandledLines'].append("t.hasSituation('situation.arena_tournament')")
+            self.data['SettlementSituation'] = "Must have Arena Tournament Settlement Situation"
+            matched_location = True
 
         if 'getTile().getDistanceTo' in line:
             match = re.search(r'getDistanceTo.*?([<>=!]+)\s*(\d+)', line)
@@ -393,9 +511,11 @@ class EventAnalyzer:
 
                 if_statement_contents = self.get_if_block_contents(line)
 
-                if if_statement_contents is None:
+                if if_statement_contents == "":
                     matched_location = False
                 else:
+                    if_lines = if_statement_contents.split('\n')
+
                     if 'return' in if_statement_contents:
                         if '>=' in operator:
                             self.data['MaxDistanceFromSettlement'] = distance + 1
@@ -405,7 +525,7 @@ class EventAnalyzer:
                             self.data['MaxDistanceFromSettlement'] = distance
                         elif '<' in operator:
                             self.data['MinDistanceFromSettlement'] = distance
-                    if 'break;' in if_statement_contents:
+                    elif 'break;' in if_statement_contents:
                         if '>=' in operator:
                             self.data['MinDistanceFromSettlement'] = distance
                         elif '<=' in operator:
@@ -415,10 +535,54 @@ class EventAnalyzer:
                         elif '<' in operator:
                             self.data['MaxDistanceFromSettlement'] = distance + 1
 
-        # MustNotBeHostile is almost always going to be true, only evaluate for false
+                        if len(if_lines) > 2:
+                            return False
+                        
+                        if 'break;' in if_lines[1]:
+                            match = re.search(r'([\w.]+)\s*(=|!=)\s*([\w.]+)', if_lines[0])
+
+                            if match:
+                                self.location_check_variable = match.group(1)
+                                print("Just set Location Check to: " + self.location_check_variable)
+                    
+        if 'bestDistance' in line:
+            self.location_check_variable = 'bestDistance'
+        if 'closest' in line:
+            self.location_check_variable = 'closest'
+            #print("Just set Location Check to: " + self.location_check_variable)
+                        
+        #if (!nearTown)
+        if len(self.location_check_variable) > 0 and self.location_check_variable in line and 'getTile().getDistanceTo' not in line:
+            matched_location = True
+            variable_check = '!' + self.location_check_variable
+
+            if variable_check in line and 'return' in self.get_if_block_contents(line):
+                #we've already documented the requirements for this location
+                matched_location = True
+
+            matches = re.findall(rf'{self.location_check_variable}\s*(=|!=|<|>|<=|>=)\s*(\d+)', line)
+
+            if matches:
+                for match in matches:
+                    #print("Matched: " + self.location_check_variable)
+                    operator = match[0]
+                    distance = int(match[1])
+
+                    if '>=' in operator:
+                        self.data['MaxDistanceFromSettlement'] = distance + 1
+                    elif '<=' in operator:
+                        self.data['MinDistanceFromSettlement'] = distance + 1
+                    elif '>' in operator:
+                        self.data['MaxDistanceFromSettlement'] = distance
+                    elif '<' in operator:
+                        self.data['MinDistanceFromSettlement'] = distance
+
         if '!isAlliedWithPlayer()' in line:
             matched_location = True
             self.data['SettlementMustNotBeHostile'] = False
+        elif 'isAlliedWithPlayer()' in line:
+            matched_location = True
+            self.data['SettlementMustNotBeHostile'] = True
 
         if '!currentTile.HasRoad' in line or '!currentTile.HasRoad' in line:
             matched_location = True
@@ -477,10 +641,16 @@ class EventAnalyzer:
         return matched_location
     
     def _line_is_for_brother_background_check(self, line: str) -> bool:
-        if 'getBackground().getID()' not in line:
-            return False
+        # if 'getBackground().getID()' not in line and 'candidate' not in line:
+        #     return False
+        
 
-        if 'getLevel()' not in line: 
+        # if_statement_lines = self.get_if_block_contents(line)
+
+        # if len(if_statement_lines) > 2:
+        #     return False
+
+        if 'getBackground()' in line and 'getLevel()' not in line: 
             matches = re.findall(r'getBackground\(\)\.getID\(\)\s*(==|!=)\s*"([^"]+)"', line)
 
             if matches:
@@ -493,7 +663,15 @@ class EventAnalyzer:
                         self.data['BackgroundRequirements'].append({"background": background_name, "minLevel": 0, "maxLevel": 0})
 
                 return True
-        else:
+        elif 'candidate' in line:
+            print('candidate in line')
+            if_statement_lines = self.get_if_block_contents(line)
+
+            if 'return' not in if_statement_lines:
+                self.data['BackgroundRequirements'].clear()
+                
+                return True
+        elif 'getBackground()' in line and 'getLevel()' in line:
             if line.index('getBackground()') < line.index('getLevel()'):
                 matches = re.findall(r'(==|!=)\s*"([\w.]+)".*?bro\.getLevel\(\)\s*(>=|<=|>|<|==|!=)\s*(\d+)', line)
 
@@ -689,6 +867,133 @@ class EventAnalyzer:
 
         return False
     
+    def _line_is_for_item_check(self, line: str) -> bool:
+        matched_item = False
+
+        # if 'item.getID()' not in line:
+        #     return False
+        
+        # foreach( item in stash )
+		# {
+		# 	if (item != null && item.getID() == "misc.black_book")
+		# 	{
+		# 		hasBlackBook = true;
+		# 		break;
+		# 	}
+		# }
+
+		# if (!hasBlackBook)
+		# {
+		# 	return;
+		# }
+        
+        match = re.search(r'item\.getID\(\)\s*(==|!=)\s*"([\w.]+)"', line)
+        
+        if match:
+            print("_line_is_for_item_check")
+            operator = match.group(1)
+            item = match.group(2)
+
+            if "==" in operator:
+                matched_item = True
+                if_statement_contents = self.get_if_block_contents(line)
+
+                if if_statement_contents == "":
+                    matched_item = False
+                else:
+                    if_lines = if_statement_contents.split('\n')
+
+                    if 'return' in if_statement_contents:
+                        self.data['ExcludedItems'].append(self.map_items[item])
+                    elif 'break;' in if_statement_contents:
+                        self.data['RequiredItems'].append(self.map_items[item])
+
+                        if len(if_lines) > 2:
+                            return False
+                        
+                        if 'break;' in if_lines[1]:
+                            match = re.search(r'([\w.]+)\s*(=|!=)\s*([\w.]+)', if_lines[0])
+
+                            if match:
+                                self.item_check_variable = match.group(1)
+                                print("Just set Item Check to: " + self.item_check_variable)
+                    
+        # if 'bestDistance' in line:
+        #     self.location_check_variable = 'bestDistance'
+        # if 'closest' in line:
+        #     self.location_check_variable = 'closest'
+            #print("Just set Location Check to: " + self.location_check_variable)
+                        
+        #if (!hasBlackBook)
+        if len(self.item_check_variable) > 0 and self.item_check_variable in line and 'item.getID()' not in line:
+            matched_item = True
+            variable_check = '!' + self.item_check_variable
+
+            if variable_check in line and 'return' in self.get_if_block_contents(line):
+                #we've already documented the requirements for this location
+                matched_item = True
+
+            # matches = re.findall(rf'{self.item_check_variable}\s*(=|!=|<|>|<=|>=)\s*(\d+)', line)
+
+            # if matches:
+            #     for match in matches:
+            #         #print("Matched: " + self.location_check_variable)
+            #         operator = match[0]
+            #         distance = int(match[1])
+
+            #         if '>=' in operator:
+            #             self.data['MaxDistanceFromSettlement'] = distance + 1
+            #         elif '<=' in operator:
+            #             self.data['MinDistanceFromSettlement'] = distance + 1
+            #         elif '>' in operator:
+            #             self.data['MaxDistanceFromSettlement'] = distance
+            #         elif '<' in operator:
+            #             self.data['MinDistanceFromSettlement'] = distance
+            
+        return matched_item
+    
+    def _line_is_for_flags_check(self, line: str) -> bool:
+        # if (!this.World.Flags.get("IsLorekeeperDefeated"))
+		# {
+		# 	return;
+		# }
+        if 'World.Flags.get' not in line:
+            return False
+        
+        match = re.search(r'(!?)this\.World\.Flags\.get\("(\w+)"\)', line)
+
+        if match:
+            operator = match.group(1)
+            flagName = match.group(2)
+
+            if "!" in operator:
+                self.data['RequiredFlags'].append(self.flag_map[flagName])
+                return True
+            
+        return False
+    
+    def _line_is_for_retinue_check(self, line: str) -> bool:
+        #this.World.Retinue.hasFollower("follower.scout")
+        if 'Retinue.hasFollower' not in line:
+            return False
+        
+        match = re.search(r'(!?)\s*this\.World\.Retinue\.hasFollower\("([\w.]+)"\)', line)
+
+        if match:
+            operator = match.group(1)
+            follower = match.group(2)
+
+            if '' in operator:
+                self.data['RequiredRetinue'].append(self.retinue_map[follower])
+
+                return True
+        return False
+
+def generate_json_file(events: List[Dict[str, Any]], output_file: str):
+    json_string = json.dumps(events)
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(json_string)
 
 def generate_squirrel_file(events: List[Dict[str, Any]], output_file: str):
     lines = [
